@@ -1,13 +1,13 @@
 services:
     app:
-        image: belakang-toko-app
+        image: apotik-app
         build:
             args:
                 user: harry
                 uid: 1000
             context: ./
             dockerfile: Dockerfile.dev
-        container_name: belakang-toko-app
+        container_name: apotik-app
         working_dir: /var/www/
         restart: unless-stopped
         # ports:
@@ -25,7 +25,7 @@ services:
     db:
         image: mysql/mysql-server:5.7
         platform: linux/amd64
-        container_name: mysql_tokobangunan
+        container_name: mysql_apotik
         restart: unless-stopped
         environment:
             MYSQL_DATABASE: ${DB_DATABASE:-local_laravel}
@@ -33,7 +33,7 @@ services:
             MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
         ports:
-            - "3344:3306"
+            - "3355:3306"
         volumes:
             - mysql_data:/var/lib/mysql
             - ./docker-compose/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
@@ -42,13 +42,13 @@ services:
 
     nginx:
         image: nginx:alpine
-        container_name: nginx_tokobangunan
+        container_name: nginx_apotik
         restart: unless-stopped
         depends_on:
             - app
         ports:
             # - "8182:80"
-            - "8182:80"
+            - "8185:80"
         volumes:
             - ./:/var/www
             - ./docker-compose/nginx:/etc/nginx/conf.d
@@ -57,18 +57,18 @@ services:
 
     redis:
         image: redis:7
-        container_name: redis-server
+        container_name: redis-server-apotik
         restart: unless-stopped
         volumes:
             - redis_data:/data
         ports:
-            - "26739:6379"
+            - "26749:6379"
         networks:
             - harrynet
 
     scheduler:
-        image: belakang-toko-app # Pakai image dari app
-        container_name: belakang-toko-scheduler
+        image: apotik-app # Pakai image dari app
+        container_name: apotik-scheduler
         command: ["php", "artisan", "schedule:work"]
         depends_on:
             - app
@@ -88,4 +88,3 @@ volumes:
 networks:
     harrynet:
         driver: bridge
-        
