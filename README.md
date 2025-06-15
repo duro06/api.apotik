@@ -30,6 +30,23 @@ Jalankan container
 docker-compose up -d --build
 ```
 
+## ----------- Step 2.1 : Jika Error --------
+
+!! jika error, coment scheduler di docker-compose.yml terlebih dahulu untuk mengcreate image aporik-app. setelah itu
+
+```sh
+docker-compose down -v
+
+```
+
+terlebih dahulu, uncoment scheduler kemudian jalankan lagi
+
+```sh
+docker-compose up -d --build
+```
+
+### ---------- End of Step 2.1 --------
+
 Ini mungkin memerlukan waktu beberapa saat. Setelah container disiapkan, periksa status dengan ...
 
 ```sh
