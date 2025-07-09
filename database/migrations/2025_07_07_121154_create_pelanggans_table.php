@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('kode');
-            $table->string('tlp');
-            $table->text('alamat');
+            $table->string('tlp')->nullable();
+            $table->text('alamat')->nullable();
             $table->timestamps();
         });
     }

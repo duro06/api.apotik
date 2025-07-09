@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('kode');
-            $table->string('satuan_k');
-            $table->string('satuan_b');
-            $table->integer('isi');
-            $table->string('kandungan');
-            $table->decimal('harga_jual_resep', 20, 2);
-            $table->decimal('harga_jual_umum', 20, 2);
+            $table->string('satuan_k')->nullable();
+            $table->string('satuan_b')->nullable();
+            $table->integer('isi')->default(1);
+            $table->string('kandungan')->nullable();
+            $table->decimal('harga_jual_resep', 20, 2)->default(0);
+            $table->decimal('harga_jual_umum', 20, 2)->default(0);
             $table->timestamps();
         });
     }
