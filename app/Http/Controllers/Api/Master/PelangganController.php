@@ -56,15 +56,15 @@ class PelangganController extends Controller
 
     public function hapus(Request $request)
     {
-        $jabatan = Pelanggan::find($request->id);
-        if (!$jabatan) {
+        $data = Pelanggan::find($request->id);
+        if (!$data) {
             return new JsonResponse([
                 'message' => 'Data Pelanggan tidak ditemukan'
             ], 410);
         }
-        $jabatan->delete();
+        $data->delete();
         return new JsonResponse([
-            'data' => $jabatan,
+            'data' => $data,
             'message' => 'Data Pelanggan berhasil dihapus'
         ]);
     }
