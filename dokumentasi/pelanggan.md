@@ -1,6 +1,6 @@
-## Master Jabatan
+## Master Pelanggan
 
--   general route `api/v1/master/jabatan`
+-   general route `api/v1/master/pelanggan`
 
 -   get `/get-list` payload :
 

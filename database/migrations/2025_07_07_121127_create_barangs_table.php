@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('satuan_b')->nullable();
             $table->integer('isi')->default(1);
             $table->string('kandungan')->nullable();
-            $table->decimal('harga_jual_resep', 20, 2)->default(0);
-            $table->decimal('harga_jual_umum', 20, 2)->default(0);
+            $table->decimal('harga_jual_resep_k', 20, 2)->default(0);
+            $table->decimal('harga_jual_biasa_k', 20, 2)->default(0);
             $table->timestamps();
         });
     }

@@ -16,8 +16,8 @@
     -   satuan_b
     -   isi
     -   kandungan
-    -   harga_jual_resep
-    -   harga_jual_umum
+    -   harga_jual_resep_k
+    -   harga_jual_biasa_k
 
 -   post `Hapus` : `/delete` payload
     -   id

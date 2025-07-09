@@ -1,6 +1,6 @@
-## Master Supplier
+## Master Satuan
 
--   general route `api/v1/master/supplier`
+-   general route `api/v1/master/satuan`
 
 -   get `/get-list` payload :
 
@@ -12,9 +12,6 @@
 
     -   kode `null / '' jika baru`
     -   nama `divalidasi`
-    -   tlp
-    -   rekening
-    -   alamat `'text'`
 
 -   post `Hapus` : `/delete` payload
     -   id
