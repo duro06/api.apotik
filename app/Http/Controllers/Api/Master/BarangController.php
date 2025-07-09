@@ -58,7 +58,8 @@ class BarangController extends Controller
             $request->all()
         );
         return new JsonResponse([
-            'data' => $barang
+            'data' => $barang,
+            'message' => 'Data barang berhasil disimpan'
         ]);
     }
 
@@ -72,7 +73,8 @@ class BarangController extends Controller
         }
         $barang->delete();
         return new JsonResponse([
-            'data' => $barang
+            'data' => $barang,
+            'message' => 'Data barang berhasil dihapus'
         ]);
     }
 }
