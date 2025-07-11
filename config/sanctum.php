@@ -46,7 +46,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // 'expiration' => null, // newer expired
+    'expiration' => 480, // 8 jam
 
     /*
     |--------------------------------------------------------------------------
