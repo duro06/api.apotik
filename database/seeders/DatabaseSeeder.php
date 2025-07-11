@@ -15,6 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $sa = User::where('username', '=', 'sa')->first();
+        if (!$sa) {
+            User::create([
+                'kode' => 'USR000000',
+                'username' => 'sa',
+                'nama' => 'Super Admin',
+                'password' => bcrypt('sasa0102'),
+                'email' => 'sa@app.com',
+
+            ]);
+        }
         // User::factory(5)->create();
         // \App\Models\User::factory(10)->create();
 
@@ -22,12 +33,15 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
-        DB::table('counter')->insert([
-            'kode_barang' => 0,
-            'kode_pelanggan' => 0,
-            'kode_satuan' => 0,
-            'kode_supplier' => 0,
-            'kode_jabatan' => 0
-        ]);
+        $conter = DB::table('counter')->first();
+        if (!$conter) {
+            DB::table('counter')->insert([
+                'kode_barang' => 0,
+                'kode_pelanggan' => 0,
+                'kode_satuan' => 0,
+                'kode_supplier' => 0,
+                'kode_jabatan' => 0
+            ]);
+        }
     }
 }
