@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group([
     // 'middleware' => 'auth:api',
-    // 'middleware' => 'jwt.verify',
+    // 'middleware' => 'auth:sanctum',
     'prefix' => 'master/barang'
 ], function () {
     Route::get('/get-list', [BarangController::class, 'index']);
