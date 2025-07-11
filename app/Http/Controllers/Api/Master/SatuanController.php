@@ -33,12 +33,12 @@ class SatuanController extends Controller
             'nama' => 'required'
         ]);
 
-        if (!!$request->kode) {
-            $kode = $request->kode;
-        } else {
+        if (!$request->kode) {
             DB::select('call kode_satuan(@nomor)');
             $nomor = DB::table('counter')->select('kode_satuan')->first();
             $kode = FormatingHelper::genKodeDinLength($nomor->kode_satuan, 5, 'STN');
+        } else {
+            $kode = $request->kode;
         }
 
         $data = Satuan::updateOrCreate(

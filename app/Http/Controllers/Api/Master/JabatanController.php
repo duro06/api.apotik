@@ -33,12 +33,12 @@ class JabatanController extends Controller
             'nama' => 'required'
         ]);
 
-        if (!!$request->kode) {
-            $kode = $request->kode;
-        } else {
+        if (!$request->kode) {
             DB::select('call kode_jabatan(@nomor)');
             $nomor = DB::table('counter')->select('kode_jabatan')->first();
             $kode = FormatingHelper::genKodeDinLength($nomor->kode_jabatan, 4, 'JBT');
+        } else {
+            $kode = $request->kode;
         }
 
         $data = Jabatan::updateOrCreate(

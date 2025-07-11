@@ -33,12 +33,12 @@ class SupplierController extends Controller
             'nama' => 'required'
         ]);
 
-        if (!!$request->kode) {
-            $kode = $request->kode;
-        } else {
+        if (!$request->kode) {
             DB::select('call kode_supplier(@nomor)');
             $nomor = DB::table('counter')->select('kode_supplier')->first();
             $kode = FormatingHelper::genKodeDinLength($nomor->kode_supplier, 5, 'PBF');
+        } else {
+            $kode = $request->kode;
         }
 
         $data = Supplier::updateOrCreate(

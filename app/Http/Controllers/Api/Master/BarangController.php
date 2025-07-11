@@ -34,12 +34,12 @@ class BarangController extends Controller
             'nama' => 'required'
         ]);
 
-        if (!!$request->kode) {
-            $kode = $request->kode;
-        } else {
+        if (!$request->kode) {
             DB::select('call kode_barang(@nomor)');
             $nomor = DB::table('counter')->select('kode_barang')->first();
             $kode = FormatingHelper::genKodeBarang($nomor->kode_barang, 'BRG');
+        } else {
+            $kode = $request->kode;
         }
 
         $barang = Barang::updateOrCreate(

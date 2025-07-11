@@ -34,12 +34,12 @@ class PelangganController extends Controller
             'nama' => 'required'
         ]);
 
-        if (!!$request->kode) {
-            $kode = $request->kode;
-        } else {
+        if (!$request->kode) {
             DB::select('call kode_pelanggan(@nomor)');
             $nomor = DB::table('counter')->select('kode_pelanggan')->first();
             $kode = FormatingHelper::genKodeDinLength($nomor->kode_pelanggan, 5, 'PLG');
+        } else {
+            $kode = $request->kode;
         }
 
         $data = Pelanggan::updateOrCreate(
