@@ -14,6 +14,25 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
     //
+    public function index()
+    {
+        $order_by = request('order_by') ?? 'created_at';
+        $sort = request('sort') ?? 'asc';
+        $raw = User::when(request('q'), function ($q) {
+            $q->where('nama', 'like', '%' . request('q') . '%')
+                ->orWhere('username', 'like', '%' . request('q') . '%')
+                ->orWhere('email', 'like', '%' . request('q') . '%')
+                ->orWhere('kode', 'like', '%' . request('q') . '%');
+        })
+            ->orderBy($order_by, $sort)
+            ->paginate(request('per_page'));
+        $data = collect($raw)['data'];
+        $meta = collect($raw)->except('data');
+        return new JsonResponse([
+            'data' => $data,
+            'meta' => $meta
+        ]);
+    }
     public function register(Request $request)
     {
         //

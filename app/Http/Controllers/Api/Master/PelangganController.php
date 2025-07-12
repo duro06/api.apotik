@@ -14,10 +14,13 @@ class PelangganController extends Controller
 
     public function index()
     {
+        $order_by = request('order_by') ?? 'created_at';
+        $sort = request('sort') ?? 'asc';
         $raw = Pelanggan::when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
+            ->orderBy($order_by, $sort)
             ->paginate(request('per_page'));
         $data = collect($raw)['data'];
         $meta = collect($raw)->except('data');

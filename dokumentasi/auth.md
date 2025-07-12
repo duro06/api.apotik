@@ -2,6 +2,65 @@
 
 Base URL: `/api/v1/auth`
 
+## 🔷 Get Users (List)
+
+**GET** `/api/v1/auth/get-list`
+
+> Mengambil daftar user dengan pencarian, sorting, dan pagination.
+
+### Query Parameters
+
+| Parameter | Type   | Required | Default      | Notes                                                                  |
+| --------- | ------ | -------- | ------------ | ---------------------------------------------------------------------- |
+| q         | string | ❌       | -            | Kata kunci untuk pencarian (`nama`, `username`, `email`, `kode`)       |
+| order_by  | string | ❌       | `created_at` | Kolom untuk sorting, contoh: `nama`, `username`, `email`, `created_at` |
+| sort      | string | ❌       | `asc`        | Arah sorting: `asc` atau `desc`                                        |
+| per_page  | int    | ❌       | 15           | Jumlah item per halaman                                                |
+| page      | int    | ❌       | 1            | Halaman yang diambil                                                   |
+
+### Contoh Request
+
+### Response (200)
+
+````json
+{
+  "data": [
+    {
+      "id": 1,
+      "nama": "Budi",
+      "username": "budi123",
+      "email": "budi@example.com",
+      "kode": "USR00001",
+      "hp": null,
+      "alamat": null,
+      "kode_jabatan": null,
+      "created_at": "...",
+      "updated_at": "..."
+    },
+    {
+      "id": 2,
+      "nama": "Andi",
+      "username": "andi456",
+      "email": "andi@example.com",
+      "kode": "USR00002",
+      "hp": null,
+      "alamat": null,
+      "kode_jabatan": null,
+      "created_at": "...",
+      "updated_at": "..."
+    }
+  ],
+  "meta": {
+    "current_page": 2,
+    "from": 11,
+    "last_page": 5,
+    "path": "http://example.com/api/users",
+    "per_page": 10,
+    "to": 20,
+    "total": 50
+  }
+}
+
 ---
 
 ## 🔷 Register
@@ -36,7 +95,7 @@ Base URL: `/api/v1/auth`
     "alamat": "Jl. Contoh",
     "kode_jabatan": "STAFF"
 }
-```
+````
 
 ### Response Sukses (201)
 
