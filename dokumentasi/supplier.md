@@ -13,6 +13,7 @@
     -   kode `null / '' jika baru`
     -   nama `divalidasi`
     -   tlp
+    -   bank
     -   rekening
     -   alamat `'text'`
 

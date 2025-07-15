@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Master;
 
 use App\Helpers\Formating\FormatingHelper;
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Master\Satuan;
 use Illuminate\Http\JsonResponse;
@@ -20,13 +21,10 @@ class SatuanController extends Controller
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
             ->orderBy($order_by, $sort)
-            ->paginate(request('per_page'));
-        $data = collect($raw)['data'];
-        $meta = collect($raw)->except('data');
-        return new JsonResponse([
-            'data' => $data,
-            'meta' => $meta
-        ]);
+            // ->paginate(request('per_page'));
+            ->simplePaginate(request('per_page'));
+        $resp = ResponseHelper::responseGetSimplePaginate($raw);
+        return new JsonResponse($resp);
     }
 
     public function store(Request $request)
