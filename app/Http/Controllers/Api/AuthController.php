@@ -135,4 +135,26 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
+
+    public function update(Request $request)
+    {
+        //
+        $user = User::find($request->id);
+        if (!$user) {
+            return new JsonResponse([
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
+        $user->update([
+            'nama' => $request->nama,
+            'username' => $request->username,
+            'email' => $request->email,
+            'hp' => $request->hp,
+            'alamat' => $request->alamat,
+            'kode_jabatan' => $request->kode_jabatan,
+        ]);
+        return new JsonResponse([
+            'user' => $user
+        ]);
+    }
 }

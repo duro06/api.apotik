@@ -242,3 +242,86 @@ Authorization: Bearer {token}
 ✅ Gunakan token hasil login di semua request yang butuh autentikasi (`logout`, `profile`).
 
 ✅ Token menggunakan Laravel Sanctum.
+
+---
+
+### 📌 Update User
+
+**POST** `/api/auth/update`
+
+> Update data user berdasarkan ID.  
+> Hanya bisa diakses oleh user yang sudah login (Sanctum).
+
+#### Headers
+
+| Header        | Value            |
+| ------------- | ---------------- |
+| Authorization | Bearer {token}   |
+| Accept        | application/json |
+| Content-Type  | application/json |
+
+---
+
+#### Body Parameters
+
+| Parameter      | Type   | Required | Notes                        |
+| -------------- | ------ | -------- | ---------------------------- |
+| `id`           | int    | ✅ Yes   | ID user yang ingin diupdate. |
+| `nama`         | string | ❌ No    | Nama lengkap user.           |
+| `username`     | string | ❌ No    | Username user.               |
+| `email`        | string | ❌ No    | Email user (harus unik).     |
+| `hp`           | string | ❌ No    | Nomor HP.                    |
+| `alamat`       | string | ❌ No    | Alamat lengkap.              |
+| `kode_jabatan` | string | ❌ No    | Kode jabatan/role user.      |
+
+---
+
+#### 📄 Contoh Request
+
+```http
+POST /api/auth/update
+Authorization: Bearer {token}
+Accept: application/json
+Content-Type: application/json
+
+{
+    "id": 1,
+    "nama": "Andi Dermawan",
+    "username": "andi123",
+    "email": "andi@example.com",
+    "hp": "081234567890",
+    "alamat": "Jl. Merdeka No. 1",
+    "kode_jabatan": "ADM"
+}
+
+
+```
+
+## 📄 Contoh Response — Success 200 OK
+
+```
+{
+"user": {
+    "id": 1,
+    "kode": "USR001",
+    "nama": "Andi Dermawan",
+    "username": "andi123",
+    "email": "andi@example.com",
+    "email_verified_at": null,
+    "hp": "081234567890",
+    "alamat": "Jl. Merdeka No. 1",
+    "kode_jabatan": "ADM",
+    "created_at": "2025-07-15T09:00:00.000000Z",
+    "updated_at": "2025-07-15T10:00:00.000000Z"
+    }
+}
+```
+
+## 📄 Contoh Response — Error 404 Not Found
+
+```
+{
+    "message": "User tidak ditemukan"
+}
+
+```

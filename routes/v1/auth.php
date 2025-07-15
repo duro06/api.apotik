@@ -19,4 +19,5 @@ Route::group([
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/profile', [AuthController::class, 'profile']);
+    Route::post('/update', [AuthController::class, 'update']);
 });
