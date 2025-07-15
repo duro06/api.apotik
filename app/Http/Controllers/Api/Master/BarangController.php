@@ -33,6 +33,8 @@ class BarangController extends Controller
         // return new JsonResponse($request->all());
         $request->validate([
             'nama' => 'required'
+        ], [
+            'nama.required' => 'Nama wajib diisi.'
         ]);
 
         if (!$request->kode) {
