@@ -14,16 +14,25 @@ class JabatanController extends Controller
 {
     public function index()
     {
-        $order_by = request('order_by') ?? 'created_at';
-        $sort = request('sort') ?? 'asc';
-        $raw = Jabatan::when(request('q'), function ($q) {
+        $req = [
+            'order_by' => request('order_by') ?? 'created_at',
+            'sort' => request('sort') ?? 'asc',
+            'query' => request('q') ?? '',
+            'page' => request('page') ?? 1,
+            'per_page' => request('per_page') ?? 10,
+        ];
+
+        $raw = Jabatan::query();
+        $raw->when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
-            ->orderBy($order_by, $sort)
-            // ->paginate(request('per_page'));
-            ->simplePaginate(request('per_page'));
-        $resp = ResponseHelper::responseGetSimplePaginate($raw);
+            ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
+        $data = $raw->simplePaginate(request('per_page'));
+
+        $totalCount = (clone $raw)->count();
+
+        $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
         return new JsonResponse($resp);
     }
 
