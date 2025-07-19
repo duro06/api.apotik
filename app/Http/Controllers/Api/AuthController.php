@@ -21,7 +21,6 @@ class AuthController extends Controller
         $req = [
             'order_by' => request('order_by') ?? 'created_at',
             'sort' => request('sort') ?? 'asc',
-            'query' => request('q') ?? '',
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
         ];
@@ -34,9 +33,9 @@ class AuthController extends Controller
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
             ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
+        $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate(request('per_page'));
 
-        $totalCount = (clone $raw)->count();
 
 
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
