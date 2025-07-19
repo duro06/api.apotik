@@ -17,7 +17,6 @@ class SupplierController extends Controller
         $req = [
             'order_by' => request('order_by') ?? 'created_at',
             'sort' => request('sort') ?? 'asc',
-            'query' => request('q') ?? '',
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
         ];
@@ -28,9 +27,8 @@ class SupplierController extends Controller
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
             ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
-        $data = $raw->simplePaginate(request('per_page'));
-
         $totalCount = (clone $raw)->count();
+        $data = $raw->simplePaginate($req['per_page']);
 
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
         return new JsonResponse($resp);
@@ -39,25 +37,29 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         // return new JsonResponse($request->all());
-        $request->validate([
-            'nama' => 'required'
+        $kode = $request->kode;
+        $validated = $request->validate([
+            'nama' => 'required',
+            'kode' => 'nullable',
+            'tlp' => 'nullable',
+            'bank' => 'nullable',
+            'rekening' => 'nullable',
+            'alamat' => 'nullable',
         ], [
             'nama.required' => 'Nama wajib diisi.'
         ]);
 
-        if (!$request->kode) {
+        if (!$kode) {
             DB::select('call kode_supplier(@nomor)');
             $nomor = DB::table('counter')->select('kode_supplier')->first();
-            $kode = FormatingHelper::genKodeDinLength($nomor->kode_supplier, 5, 'PBF');
-        } else {
-            $kode = $request->kode;
+            $validated['kode'] = FormatingHelper::genKodeDinLength($nomor->kode_supplier, 5, 'PBF');
         }
 
         $data = Supplier::updateOrCreate(
             [
-                'kode' => $kode
+                'kode' => $validated['kode']
             ],
-            $request->all()
+            $validated
         );
         return new JsonResponse([
             'data' => $data,
