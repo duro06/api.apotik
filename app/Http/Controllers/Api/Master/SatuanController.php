@@ -27,7 +27,7 @@ class SatuanController extends Controller
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
-            ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
+            ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
 
