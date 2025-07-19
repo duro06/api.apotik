@@ -17,20 +17,19 @@ class JabatanController extends Controller
         $req = [
             'order_by' => request('order_by') ?? 'created_at',
             'sort' => request('sort') ?? 'asc',
-            'query' => request('q') ?? '',
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
         ];
 
         $raw = Jabatan::query();
+
         $raw->when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
             ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
-        $data = $raw->simplePaginate(request('per_page'));
-
         $totalCount = (clone $raw)->count();
+        $data = $raw->simplePaginate($req['per_page']);
 
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
         return new JsonResponse($resp);
@@ -39,25 +38,25 @@ class JabatanController extends Controller
     public function store(Request $request)
     {
         // return new JsonResponse($request->all());
-        $request->validate([
-            'nama' => 'required'
+        $kode = $request->kode;
+        $validated = $request->validate([
+            'nama' => 'required',
+            'kode' => 'nullable',
         ], [
             'nama.required' => 'Nama wajib diisi.'
         ]);
 
-        if (!$request->kode) {
+        if (!$kode) {
             DB::select('call kode_jabatan(@nomor)');
             $nomor = DB::table('counter')->select('kode_jabatan')->first();
-            $kode = FormatingHelper::genKodeDinLength($nomor->kode_jabatan, 4, 'JBT');
-        } else {
-            $kode = $request->kode;
+            $validated['kode'] = FormatingHelper::genKodeDinLength($nomor->kode_jabatan, 4, 'JBT');
         }
 
         $data = Jabatan::updateOrCreate(
             [
-                'kode' => $kode
+                'kode' => $validated['kode']
             ],
-            $request->all()
+            $validated
         );
         return new JsonResponse([
             'data' => $data,
