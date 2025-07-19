@@ -24,8 +24,10 @@ class JabatanController extends Controller
         $raw = Jabatan::query();
 
         $raw->when(request('q'), function ($q) {
-            $q->where('nama', 'like', '%' . request('q') . '%')
-                ->orWhere('kode', 'like', '%' . request('q') . '%');
+            $q->where(function ($query) {
+                $query->where('nama', 'like', '%' . request('q') . '%')
+                    ->orWhere('kode', 'like', '%' . request('q') . '%');
+            });
         })
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
