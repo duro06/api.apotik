@@ -18,7 +18,6 @@ class BarangController extends Controller
         $req = [
             'order_by' => request('order_by') ?? 'created_at',
             'sort' => request('sort') ?? 'asc',
-            'query' => request('q') ?? '',
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
         ];
@@ -28,9 +27,9 @@ class BarangController extends Controller
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
             ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
-        $data = $raw->simplePaginate(request('per_page'));
-
         $totalCount = (clone $raw)->count();
+        $data = $raw->simplePaginate($req['per_page']);
+
 
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
         return new JsonResponse($resp);
@@ -38,35 +37,37 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
-        // return new JsonResponse($request->all());
-        $request->validate([
-            'nama' => 'required'
+        // return new JsonResponse([
+        //     'req' => $request->all(),
+        //     'k' => !$request->kode,
+        // ]);
+        $validated = $request->validate([
+            'nama' => 'required',
+            'kode' => 'nullable',
+            'satuan_k' => 'nullable',
+            'satuan_b' => 'nullable',
+            'isi' => 'nullable',
+            'kandungan' => 'nullable',
+            'harga_jual_resep_k' => 'nullable',
+            'harga_jual_biasa_k' => 'nullable',
         ], [
             'nama.required' => 'Nama wajib diisi.'
         ]);
 
-        if (!$request->kode) {
+        if (!$validated['kode']) {
             DB::select('call kode_barang(@nomor)');
             $nomor = DB::table('counter')->select('kode_barang')->first();
-            $kode = FormatingHelper::genKodeBarang($nomor->kode_barang, 'BRG');
-        } else {
-            $kode = $request->kode;
+            $validated['kode'] = FormatingHelper::genKodeBarang($nomor->kode_barang, 'BRG');
         }
-
+        // return new JsonResponse([
+        //     'kode' => $validated['kode'],
+        //     'validated' => $validated,
+        // ]);
         $barang = Barang::updateOrCreate(
             [
-                'kode' => $kode
+                'kode' =>  $validated['kode']
             ],
-            // [
-            //     'nama' => $request->nama,
-            //     'satuan_k,' => $request->satuan_k,
-            //     'satuan_b,' => $request->satuan_b,
-            //     'isi,' => $request->isi,
-            //     'kandungan,' => $request->kandungan,
-            //     'harga_jual_resep,' => $request->harga_jual_resep,
-            //     'harga_jual_umum,' => $request->harga_jual_umum,
-            // ]
-            $request->all()
+            $validated
         );
         return new JsonResponse([
             'data' => $barang,
