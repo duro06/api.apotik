@@ -37,10 +37,7 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
-        // return new JsonResponse([
-        //     'req' => $request->all(),
-        //     'k' => !$request->kode,
-        // ]);
+        $kode = $request->kode;
         $validated = $request->validate([
             'nama' => 'required',
             'kode' => 'nullable',
@@ -54,15 +51,12 @@ class BarangController extends Controller
             'nama.required' => 'Nama wajib diisi.'
         ]);
 
-        if (!$validated['kode']) {
+        if (!$kode) {
             DB::select('call kode_barang(@nomor)');
             $nomor = DB::table('counter')->select('kode_barang')->first();
             $validated['kode'] = FormatingHelper::genKodeBarang($nomor->kode_barang, 'BRG');
         }
-        // return new JsonResponse([
-        //     'kode' => $validated['kode'],
-        //     'validated' => $validated,
-        // ]);
+
         $barang = Barang::updateOrCreate(
             [
                 'kode' =>  $validated['kode']
