@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Super Admin',
                 'password' => bcrypt('sasa0102'),
                 'email' => 'sa@app.com',
+                'kode_jabatan' => 'root',
 
             ]);
         }
