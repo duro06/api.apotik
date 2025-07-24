@@ -2,12 +2,13 @@
 
 namespace App\Models\Transactions;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderHeader extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
     protected $guarded = ['id'];
 
 
