@@ -9,12 +9,45 @@ use App\Models\Transactions\OrderHeader;
 use App\Models\Transactions\OrderRecord;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
     // get list of orders (header & records)
     public function index()
+    {
+        $req = [
+            'order_by' => request('order_by', 'created_at'),
+            'sort' => request('sort', 'asc'),
+            'page' => request('page', 1),
+            'kode_supplier' => request('kode_supplier'),
+            'per_page' => request('per_page', 10),
+        ];
+
+
+        $query = OrderHeader::query()
+            ->when(request('q'), function ($q) {
+                $q->where(function ($query) {
+                    $query->where('nomor_order', 'like', '%' . request('q') . '%')
+                        ->orWhere('kode_user', 'like', '%' . request('q') . '%');
+                });
+            })
+            ->when($req['kode_supplier'], function ($q) use ($req) {
+                $q->where('kode_supplier', $req['kode_supplier']);
+            })
+            ->with([
+                'orderRecords.master:nama,kode,satuan_k,satuan_b,isi,kandungan',
+                'supplier',
+            ])
+            ->orderBy($req['order_by'], $req['sort']);
+        $totalCount = (clone $query)->count();
+        $data = $query->simplePaginate($req['per_page']);
+
+        $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
+        return new JsonResponse($resp);
+    }
+    public function indexOld()
     {
         $req = [
             'order_by' => request('order_by', 'created_at'),
@@ -102,6 +135,103 @@ class OrderController extends Controller
     }
 
     // Store a new order (header & records)
+    public function simpan(Request $request)
+    {
+        $validated = $request->validate([
+            'nomor_order' => 'nullable',
+            'tgl_order' => 'nullable',
+            'kode_supplier' => 'required',
+            'kode_barang' => 'required',
+            'satuan_k' => 'nullable',
+            'satuan_b' => 'nullable',
+            'isi' => 'required',
+        ], [
+            'kode_supplier.required' => 'Kode Supplier Harus Di isi.',
+            'items.required' => 'Minimal satu barang harus dipilih.',
+            'kode_barang.required' => 'Kode Barang Harus Di isi.',
+            'isi.required' => 'Isi per Satuan Besar Barang Harus Di isi.',
+        ]);
+        $user = Auth::user();
+        if (!$user) {
+            throw new \Exception('Apakah Anda belum login?', 401);
+        }
+        if (!$validated['nomor_order']) {
+            DB::select('call nomor_order(@nomor)');
+            $nomor = DB::table('counter')->select('nomor_order')->first();
+            $nomor_order = FormatingHelper::genKodeBarang($nomor->nomor_order, 'TRX');
+        } else {
+            $nomor_order = $request->nomor_order;
+        }
+        try {
+            DB::beginTransaction();
+            $orderHeader = OrderHeader::updateOrCreate(
+                [
+                    'nomor_order' => $nomor_order,
+                ],
+                [
+                    'kode_user' => $user->kode,
+                    'kode_supplier' => $validated['kode_supplier'],
+                    'tgl_order' => $validated['tgl_order'] ?? now(),
+                    'flag' => '1', // Default flag for draft
+                ]
+            );
+            if (!$orderHeader) {
+                throw new \Exception('Transaksi Gagal Disimpan.');
+            }
+
+            $record = OrderRecord::updateOrCreate(
+                [
+                    'nomor_order' => $nomor_order,
+                    'kode_barang' => $validated['kode_barang'],
+                ],
+                [
+                    'kode_user' => $user->kode,
+                    'satuan_b' => $validated['satuan_b'] ?? null,
+                    'satuan_k' => $validated['satuan_k'] ?? null,
+                    'isi' => $validated['isi'] ?? 1,
+                    'flag' => '1'
+                ]
+            );
+
+            if (!$record) {
+                throw new \Exception('Gagal menyimpan Rincian .');
+            }
+
+            DB::commit();
+            $orderHeader->load([
+                'orderRecords.master:nama,kode,satuan_k,satuan_b,isi,kandungan',
+                'supplier',
+            ]);
+
+            return new JsonResponse([
+                'success' => true,
+                'data' => [
+                    'header' => $orderHeader,
+                ],
+                'message' => 'Data Orders berhasil disimpan'
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // return new JsonResponse([
+            //     'success' => false,
+            //     'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+            //     'file' => $e->getFile(),
+            //     'line' => $e->getLine(),
+            //     'user' => Auth::user(),
+            //     'trace' => $e->getTrace(),
+
+            // ], 410);
+            return response()->jsone([
+                'success' => false,
+                'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'user' => Auth::user(),
+                'trace' => $e->getTrace(),
+
+            ], 410);
+        }
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -164,12 +294,15 @@ class OrderController extends Controller
             }
 
             DB::commit();
+            $orderHeader->load([
+                'orderRecords.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
+            ]);
 
             return new JsonResponse([
                 'success' => true,
                 'data' => [
                     'header' => $orderHeader,
-                    'records' => $orderRecords
+                    // 'records' => $orderRecords
                 ],
                 'message' => 'Data Orders berhasil disimpan'
             ], 201);
@@ -246,7 +379,7 @@ class OrderController extends Controller
         ]);
     }
 
-    // Delete an order (header & records)
+    // Delete an order (header & records) kurang cek status jika status > 1 tidak boleh hapus
     public function hapus(Request $request)
     {
         $nomor_order = $request->nomor_order;
@@ -277,7 +410,7 @@ class OrderController extends Controller
             DB::rollBack();
             return new JsonResponse([
                 'message' => 'Gagal menghapus data: ' . $e->getMessage()
-            ], 500);
+            ], 410);
         }
     }
 
@@ -289,14 +422,14 @@ class OrderController extends Controller
         if (!$nomor_order) {
             return new JsonResponse([
                 'message' => 'Nomor order harus diisi'
-            ], 400);
+            ], 410);
         }
 
         $header = OrderHeader::where('nomor_order', $nomor_order)->first();
         if (!$header) {
             return new JsonResponse([
                 'message' => 'Data header tidak ditemukan'
-            ], 404);
+            ], 410);
         }
 
         $header->delete();
@@ -316,7 +449,7 @@ class OrderController extends Controller
         if (!$nomor_order || !$kode_barang) {
             return new JsonResponse([
                 'message' => 'Nomor order dan kode barang harus diisi'
-            ], 400);
+            ], 410);
         }
 
         $record = OrderRecord::where('nomor_order', $nomor_order)
@@ -326,7 +459,7 @@ class OrderController extends Controller
         if (!$record) {
             return new JsonResponse([
                 'message' => 'Data record tidak ditemukan'
-            ], 404);
+            ], 410);
         }
 
         $record->delete();

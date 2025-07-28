@@ -2,6 +2,7 @@
 
 namespace App\Models\Transactions;
 
+use App\Models\Master\Supplier;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,5 +17,9 @@ class OrderHeader extends Model
     public function orderRecords()
     {
         return $this->hasMany(OrderRecord::class, 'nomor_order', 'nomor_order');
+    }
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'kode_supplier', 'kode');
     }
 }
