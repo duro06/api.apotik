@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('penerimaan_r', function (Blueprint $table) {
+        Schema::create('penerimaan_rs', function (Blueprint $table) {
             $table->id();
             $table->string('nopenerimaan');
             $table->string('noorder');
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('penerimaan_r');
+        Schema::dropIfExists('penerimaan_rs');
     }
 };
