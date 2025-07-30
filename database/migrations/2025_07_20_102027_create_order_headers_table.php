@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      * 
-     * Flagging : 1 = draft, 2 = submitted, 3 = approved, 4 = rejected, 5 = completed
+     * Flagging : null = draft, 1 = kunci
      */
     public function up(): void
     {
@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_order'); // Data Default From Procedure nomor_order(), Contoh Nilai TRX000001
             $table->date('tgl_order')->default(now());
-            $table->string('flag')->default('1');
+            $table->string('flag')->nullable()->default(null);
             $table->string('kode_user');
             $table->string('kode_supplier');
             $table->timestamps();

@@ -12,127 +12,99 @@ Base URL: `/api/v1/transactions/order`
 
 | Parameter | Type   | Required | Default      | Notes                                                              |
 | --------- | ------ | -------- | ------------ | ------------------------------------------------------------------ |
-| q         | string | ❌       | -            | Kata kunci pencarian (`nomor_order`, `kode_user`, `kode_supplier`) |
-| order_by  | string | ❌       | `created_at` | Kolom sorting (`nomor_order`, `tgl_order`, `created_at`, dll)      |
-| sort      | string | ❌       | `asc`        | Arah sorting (`asc` atau `desc`)                                   |
-| per_page  | int    | ❌       | 10           | Jumlah item per halaman                                            |
-| page      | int    | ❌       | 1            | Halaman yang diambil                                               |
+| q         | string | ❌        | -            | Kata kunci pencarian (`nomor_order`, `kode_user`, `kode_supplier`) |
+| order_by  | string | ❌        | `created_at` | Kolom sorting (`nomor_order`, `tgl_order`, `created_at`, dll)      |
+| sort      | string | ❌        | `asc`        | Arah sorting (`asc` atau `desc`)                                   |
+| per_page  | int    | ❌        | 10           | Jumlah item per halaman                                            |
+| page      | int    | ❌        | 1            | Halaman yang diambil                                               |
 
 ### Contoh Request
 
 ```http
-GET /api/v1/transactions/order/get-list?q=TRX&order_by=tgl_order&sort=desc&per_page=5
+GET api/v1/transactions/order/get-list?q=TRX000001
 ```
 
 ### Response (200)
 
 ```json
-{
-    "data": [
+    {
+  "data": [
+    {
+      "id": 1,
+      "nomor_order": "TRX000001",
+      "tgl_order": "2025-07-30",
+      "flag": null,
+      "kode_user": "USR000001",
+      "kode_supplier": "SUP001",
+      "created_at": "2025-07-30T06:44:14.000000Z",
+      "updated_at": "2025-07-30T06:47:36.000000Z",
+      "order_records": [
         {
-            "header": {
-                "nomor_order": "TRX20230001",
-                "tgl_order": "2023-01-15",
-                "kode_user": "USR001",
-                "kode_supplier": "SUP001",
-                "created_at": "...",
-                "updated_at": "..."
-            },
-            "records": [
-                {
-                    "nomor_order": "TRX20230001",
-                    "kode_barang": "BRG001",
-                    "satuan_k": "PCS",
-                    "satuan_b": "BOX",
-                    "isi": 10,
-                    "created_at": "...",
-                    "updated_at": "..."
-                }
-            ]
-        }
-    ],
-    "pagination": {
-        "current_page": 1,
-        "per_page": 5,
-        "total": 15
-    }
-}
-```
-
-## 🔷 Get Order Header List
-
-**GET** `/api/v1/transactions/order/header/get-list`
-
-> Mengambil daftar order header saja.
-
-### Query Parameters
-
-| Parameter | Type   | Required | Default      | Notes                                                              |
-| --------- | ------ | -------- | ------------ | ------------------------------------------------------------------ |
-| q         | string | ❌       | -            | Kata kunci pencarian (`nomor_order`, `kode_user`, `kode_supplier`) |
-| order_by  | string | ❌       | `created_at` | Kolom sorting (`nomor_order`, `tgl_order`, `created_at`, dll)      |
-| sort      | string | ❌       | `asc`        | Arah sorting (`asc` atau `desc`)                                   |
-| per_page  | int    | ❌       | 10           | Jumlah item per halaman                                            |
-| page      | int    | ❌       | 1            | Halaman yang diambil                                               |
-
-### Response (200)
-
-```json
-{
-    "data": [
-        {
-            "nomor_order": "TRX20230001",
-            "tgl_order": "2023-01-15",
-            "kode_user": "USR001",
-            "kode_supplier": "SUP001",
-            "created_at": "...",
-            "updated_at": "..."
-        }
-    ],
-    "pagination": {
-        "current_page": 1,
-        "per_page": 10,
-        "total": 25
-    }
-}
-```
-
-## 🔷 Get Order Record List
-
-**GET** `/api/v1/transactions/order/record/get-list`
-
-> Mengambil daftar order records saja.
-
-### Query Parameters
-
-| Parameter | Type   | Required | Default      | Notes                                                         |
-| --------- | ------ | -------- | ------------ | ------------------------------------------------------------- |
-| q         | string | ❌       | -            | Pencarian (`nomor_order` atau `kode_barang`)                  |
-| order_by  | string | ❌       | `created_at` | Kolom sorting (`nomor_order`, `tgl_order`, `created_at`, dll) |
-| sort      | string | ❌       | `asc`        | Arah sorting (`asc` atau `desc`)                              |
-| per_page  | int    | ❌       | 10           | Jumlah item per halaman                                       |
-| page      | int    | ❌       | 1            | Halaman yang diambil                                          |
-
-### Response (200)
-
-```json
-{
-    "data": [
-        {
-            "nomor_order": "TRX20230001",
-            "kode_barang": "BRG001",
-            "satuan_k": "PCS",
-            "satuan_b": "BOX",
+          "id": 1,
+          "nomor_order": "TRX000001",
+          "kode_barang": "BRG000002",
+          "kode_user": "USR000001",
+          "satuan_k": "pcs",
+          "satuan_b": "box",
+          "isi": "10",
+          "flag": null,
+          "created_at": "2025-07-30T06:44:14.000000Z",
+          "updated_at": "2025-07-30T06:44:14.000000Z",
+          "master": {
+            "nama": "Amoxicillin",
+            "kode": "BRG000002",
+            "satuan_k": "strip",
+            "satuan_b": null,
             "isi": 10,
-            "created_at": "...",
-            "updated_at": "..."
+            "kandungan": "500mg"
+          }
+        },
+        {
+          "id": 4,
+          "nomor_order": "TRX000001",
+          "kode_barang": "BRG000001",
+          "kode_user": "USR000001",
+          "satuan_k": "pcs",
+          "satuan_b": "box",
+          "isi": "10",
+          "flag": null,
+          "created_at": "2025-07-30T06:47:36.000000Z",
+          "updated_at": "2025-07-30T06:47:36.000000Z",
+          "master": {
+            "nama": "Paracetamol",
+            "kode": "BRG000001",
+            "satuan_k": "kotak",
+            "satuan_b": null,
+            "isi": 10,
+            "kandungan": null
+          }
         }
-    ],
-    "pagination": {
-        "current_page": 1,
-        "per_page": 10,
-        "total": 50
+      ],
+      "supplier": {
+        "id": 1,
+        "nama": "PT Kimia Farma",
+        "kode": "SUP001",
+        "tlp": "021-1234567",
+        "bank": "BCA",
+        "rekening": "1234567890",
+        "alamat": "Jl. Veteran No. 12, Jakarta",
+        "created_at": "2025-07-30T06:16:15.000000Z",
+        "updated_at": "2025-07-30T06:16:15.000000Z"
+      }
     }
+  ],
+  "meta": {
+    "first": "http://localhost:8185/api/v1/transactions/order/get-list?page=1",
+    "last": "http://localhost:8185/api/v1/transactions/order/get-list?page=1",
+    "prev": null,
+    "next": null,
+    "current_page": 1,
+    "per_page": 10,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
@@ -150,15 +122,10 @@ GET /api/v1/transactions/order/get-list?q=TRX&order_by=tgl_order&sort=desc&per_p
     "tgl_order": "2023-01-15", // Optional (default: sekarang)
     "kode_user": "USR001", // Required
     "kode_supplier": "SUP001", // Required
-    "items": [
-        // Required (minimal 1 item)
-        {
-            "kode_barang": "BRG001", // Required
-            "satuan_k": "PCS", // Optional
-            "satuan_b": "BOX", // Optional
-            "isi": 10 // Optional
-        }
-    ]
+    "kode_barang": "BRG001", // Required
+    "satuan_k": "PCS", // Optional
+    "satuan_b": "BOX", // Optional
+    "isi": 10 // Optional
 }
 ```
 

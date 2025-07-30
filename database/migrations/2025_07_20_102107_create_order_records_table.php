@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      * 
-     * flagging : 1 = draft, 2 = submitted, 3 = approved, 4 = rejected, 5 = completed
+     * flagging : null = draft, 1 = kunci
      */
     public function up(): void
     {
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('satuan_k')->nullable();
             $table->string('satuan_b')->nullable();
             $table->string('isi')->nullable();
-            $table->string('flag')->default('1');
+            $table->string('flag')->nullable()->default(null);
             $table->timestamps();
         });
     }
