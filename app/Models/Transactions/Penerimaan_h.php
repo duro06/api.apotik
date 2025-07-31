@@ -11,8 +11,13 @@ class Penerimaan_h extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    public function supllier()
+    public function suplier()
     {
-        return $this->belongsTo(Supplier::class, 'kode_supplier', 'kode');
+        return $this->hasOne(Supplier::class, 'kode', 'kode_suplier');
+    }
+
+    public function rincian()
+    {
+        return $this->hasMany(Penerimaan_r::class, 'nopenerimaan', 'nopenerimaan');
     }
 }

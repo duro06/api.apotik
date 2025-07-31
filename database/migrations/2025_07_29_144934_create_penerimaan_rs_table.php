@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nopenerimaan');
             $table->string('noorder');
-            $table->string('kdbarang');
+            $table->string('kode_barang');
             $table->decimal('isi', 20, 0)->default(0);
             $table->string('satuan_b');
             $table->string('satuan_k');
