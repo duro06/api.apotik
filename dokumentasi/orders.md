@@ -2,7 +2,7 @@
 
 Base URL: `/api/v1/transactions/order`
 
-## 🔷 Get Order List (Header + Records)
+## 🔷 Get Order List (Header + Rinci + Supplier)
 
 **GET** `/api/v1/transactions/order/get-list`
 
@@ -10,84 +10,67 @@ Base URL: `/api/v1/transactions/order`
 
 ### Query Parameters
 
-| Parameter | Type   | Required | Default      | Notes                                                              |
-| --------- | ------ | -------- | ------------ | ------------------------------------------------------------------ |
-| q         | string | ❌        | -            | Kata kunci pencarian (`nomor_order`, `kode_user`, `kode_supplier`) |
-| order_by  | string | ❌        | `created_at` | Kolom sorting (`nomor_order`, `tgl_order`, `created_at`, dll)      |
-| sort      | string | ❌        | `asc`        | Arah sorting (`asc` atau `desc`)                                   |
-| per_page  | int    | ❌        | 10           | Jumlah item per halaman                                            |
-| page      | int    | ❌        | 1            | Halaman yang diambil                                               |
+| Parameter | Type   | Required | Default      | Notes                                                                               |
+| --------- | ------ | -------- | ------------ | ----------------------------------------------------------------------------------- |
+| q         | string | ❌        | -            | Kata kunci pencarian (`nomor_order`, `kode_user`, `kode_supplier`, `nama_supplier`) |
+| order_by  | string | ❌        | `created_at` | Kolom sorting (`nomor_order`, `tgl_order`, `created_at`, dll)                       |
+| sort      | string | ❌        | `asc`        | Arah sorting (`asc` atau `desc`)                                                    |
+| per_page  | int    | ❌        | 10           | Jumlah item per halaman                                                             |
+| page      | int    | ❌        | 1            | Halaman yang diambil                                                                |
+| from      | date   | ❌        | -            | Date format Y-m-d contoh (2025-07-31)                                               |
+| to        | date   | ❌        | -            | Date format Y-m-d contoh (2025-07-31)                                               |
 
 ### Contoh Request
 
 ```http
-GET api/v1/transactions/order/get-list?q=TRX000001
+GET /api/v1/transactions/order/get-list?from=2025-07-31&to=2025-07-31&q=SUP002
 ```
 
 ### Response (200)
 
 ```json
-    {
+{
   "data": [
     {
-      "id": 1,
-      "nomor_order": "TRX000001",
-      "tgl_order": "2025-07-30",
-      "flag": null,
+      "id": 4,
+      "nomor_order": "TRX000004",
+      "tgl_order": "2025-07-31",
+      "flag": "1",
       "kode_user": "USR000001",
-      "kode_supplier": "SUP001",
-      "created_at": "2025-07-30T06:44:14.000000Z",
-      "updated_at": "2025-07-30T06:47:36.000000Z",
+      "kode_supplier": "SUP002",
+      "created_at": "2025-07-31T13:03:10.000000Z",
+      "updated_at": "2025-07-31T13:20:27.000000Z",
       "order_records": [
         {
-          "id": 1,
-          "nomor_order": "TRX000001",
-          "kode_barang": "BRG000002",
+          "id": 9,
+          "nomor_order": "TRX000004",
+          "kode_barang": "BRG000034",
+          "jumlah_pesan": "20",
           "kode_user": "USR000001",
-          "satuan_k": "pcs",
-          "satuan_b": "box",
-          "isi": "10",
-          "flag": null,
-          "created_at": "2025-07-30T06:44:14.000000Z",
-          "updated_at": "2025-07-30T06:44:14.000000Z",
+          "satuan_k": "pil",
+          "satuan_b": "strip",
+          "isi": "20",
+          "flag": "1",
+          "created_at": "2025-07-31T13:03:10.000000Z",
+          "updated_at": "2025-07-31T13:20:27.000000Z",
           "master": {
-            "nama": "Amoxicillin",
-            "kode": "BRG000002",
-            "satuan_k": "strip",
+            "nama": "OBH Combi",
+            "kode": "BRG000034",
+            "satuan_k": "botol",
             "satuan_b": null,
-            "isi": 10,
-            "kandungan": "500mg"
-          }
-        },
-        {
-          "id": 4,
-          "nomor_order": "TRX000001",
-          "kode_barang": "BRG000001",
-          "kode_user": "USR000001",
-          "satuan_k": "pcs",
-          "satuan_b": "box",
-          "isi": "10",
-          "flag": null,
-          "created_at": "2025-07-30T06:47:36.000000Z",
-          "updated_at": "2025-07-30T06:47:36.000000Z",
-          "master": {
-            "nama": "Paracetamol",
-            "kode": "BRG000001",
-            "satuan_k": "kotak",
-            "satuan_b": null,
-            "isi": 10,
+            "isi": 100,
             "kandungan": null
           }
         }
       ],
       "supplier": {
-        "id": 1,
-        "nama": "PT Kimia Farma",
-        "kode": "SUP001",
-        "tlp": "021-1234567",
-        "bank": "BCA",
-        "rekening": "1234567890",
-        "alamat": "Jl. Veteran No. 12, Jakarta",
+        "id": 2,
+        "nama": "Apotek Sentosa Supplier",
+        "kode": "SUP002",
+        "tlp": "021-7654321",
+        "bank": "Mandiri",
+        "rekening": "9876543210",
+        "alamat": "Jl. Melati No. 10, Bekasi",
         "created_at": "2025-07-30T06:16:15.000000Z",
         "updated_at": "2025-07-30T06:16:15.000000Z"
       }
@@ -108,217 +91,360 @@ GET api/v1/transactions/order/get-list?q=TRX000001
 }
 ```
 
-## 🔷 Simpan Order Record List
+
+## 🔷 POST Simpan Order (Create or Update)
 
 **POST** `/api/v1/transactions/order/simpan`
 
-> Membuat atau mengupdate order lengkap (header dan records).
+> Membuat atau memperbarui data order (header dan record)
 
-### Request Body
+### Request Body (FormData)
 
+| Parameter     | Type   | Required | Description                         |
+| ------------- | ------ | -------- | ----------------------------------- |
+| nomor_order   | string | ❌        | Jika Kosong maka membuat order baru |
+| tgl_order     | date   | ❌        | Tanggal order (format: YYYY-MM-DD)  |
+| kode_supplier | string | ✔️        | Kode supplier                       |
+| kode_barang   | string | ✔️        | Kode barang                         |
+| satuan_k      | string | ❌        | Satuan kecil                        |
+| satuan_b      | string | ❌        | Satuan besar (opsional)             |
+| isi           | number | ❌        | Jumlah isi satuan besar             |
+| jumlah_pesan  | number | ❌        | Jumlah pesan                        |
+
+### Contoh Request
 ```json
 {
-    "nomor_order": "TRX20230001", // Optional (jika kosong akan digenerate)
-    "tgl_order": "2023-01-15", // Optional (default: sekarang)
-    "kode_user": "USR001", // Required
-    "kode_supplier": "SUP001", // Required
-    "kode_barang": "BRG001", // Required
-    "satuan_k": "PCS", // Optional
-    "satuan_b": "BOX", // Optional
-    "isi": 10 // Optional
+  "nomor_order": "",
+  "tgl_order": "2025-07-31",
+  "kode_supplier": "SUP002",
+  "kode_barang": "BRG000034",
+  "satuan_k": "pil",
+  "satuan_b": "strip",
+  "isi": 20,
+  "jumlah_pesan": 20
 }
 ```
 
-### Response (201 - Success)
-
+### Response (200)
 ```json
 {
-    "success": true,
-    "data": {
-        "header": {
-            "nomor_order": "TRX20230001",
-            "tgl_order": "2023-01-15",
-            "kode_user": "USR001",
-            "kode_supplier": "SUP001",
-            "created_at": "...",
-            "updated_at": "..."
-        },
-        "records": [
-            {
-                "nomor_order": "TRX20230001",
-                "kode_barang": "BRG001",
-                "satuan_k": "PCS",
-                "satuan_b": "BOX",
-                "isi": 10,
-                "created_at": "...",
-                "updated_at": "..."
-            }
-        ]
-    },
-    "message": "Data Orders berhasil disimpan"
+  "success": true,
+  "data": {
+    "id": 5,
+    "nomor_order": "TRX000005",
+    "tgl_order": "2025-07-31",
+    "flag": null,
+    "kode_user": "USR000001",
+    "kode_supplier": "BRG000041",
+    "created_at": "2025-07-31T13:56:35.000000Z",
+    "updated_at": "2025-07-31T13:56:35.000000Z",
+    "order_records": [
+      {
+        "id": 10,
+        "nomor_order": "TRX000005",
+        "kode_barang": "BRG000034",
+        "jumlah_pesan": "20",
+        "kode_user": "USR000001",
+        "satuan_k": "pil",
+        "satuan_b": "strip",
+        "isi": "20",
+        "flag": null,
+        "created_at": "2025-07-31T13:56:35.000000Z",
+        "updated_at": "2025-07-31T13:56:35.000000Z",
+        "master": {
+          "nama": "OBH Combi",
+          "kode": "BRG000034",
+          "satuan_k": "botol",
+          "satuan_b": null,
+          "isi": 100,
+          "kandungan": null
+        }
+      }
+    ],
+    "supplier": null
+  },
+  "message": "Data Orders berhasil disimpan"
 }
 ```
 
-### Response (400 - Validation Error)
-
+### Jika Order Sudah Terkunci Response (410)
 ```json
 {
-    "success": false,
-    "message": "Kode User Harus Di isi."
+  "success": false,
+  "message": "Data Order Sudah Terkunci"
 }
 ```
 
-## 🔷 Simpan/Update Order Header
-
-**POST** `/api/v1/transactions/order/header/simpan`
-
-> Membuat atau mengupdate order header saja.
-
-### Request Body
-
+### Jika Order Sudah Masuk Ke penerimaan Response (410)
 ```json
 {
-    "nomor_order": "TRX20230001", // Optional (jika kosong akan digenerate)
-    "tgl_order": "2023-01-15", // Optional
-    "kode_user": "USR001", // Required
-    "kode_supplier": "SUP001" // Required
+  "success": false,
+  "message": "Data Order ini Sudah Masuk Ke penerimaan"
 }
 ```
 
-### Response (200 - Success)
+## 🔷 POST kunci Order 
+**POST** `/api/v1/transactions/order/lock-order`
 
+> Lock Order Hanya bisa jika flag order null / masih di status Draft
+
+
+### Request Body (FormData)
+
+| Parameter   | Type   | Required | Description                    |
+| ----------- | ------ | -------- | ------------------------------ |
+| nomor_order | string | ✔️        | nomor_order yang akan di kunci |
+
+### Contoh Request
 ```json
 {
-    "data": {
-        "nomor_order": "TRX20230001",
-        "tgl_order": "2023-01-15",
-        "kode_user": "USR001",
-        "kode_supplier": "SUP001",
-        "created_at": "...",
-        "updated_at": "..."
-    },
-    "message": "Data header berhasil disimpan"
+  "nomor_order": "TRX000004",
 }
 ```
 
-## 🔷 Simpan/Update Order Record
-
-**POST** `/api/v1/transactions/order/record/simpan`
-
-> Membuat atau mengupdate order record.
-
-### Request Body
-
+### Response (200)
 ```json
 {
-    "nomor_order": "TRX000007",
-    "kode_barang": "BRG001",
-    "kode_user": "USR001",
-    "satuan_k": "PCS",
-    "satuan_b": "BOX",
-    "isi": 10
+  "success": true,
+  "data": {
+    "id": 4,
+    "nomor_order": "TRX000004",
+    "tgl_order": "2025-07-31",
+    "flag": "1",
+    "kode_user": "USR000001",
+    "kode_supplier": "SUP002",
+    "created_at": "2025-07-31T13:03:10.000000Z",
+    "updated_at": "2025-07-31T13:20:27.000000Z",
+    "order_records": [
+      {
+        "id": 9,
+        "nomor_order": "TRX000004",
+        "kode_barang": "BRG000034",
+        "jumlah_pesan": "20",
+        "kode_user": "USR000001",
+        "satuan_k": "pil",
+        "satuan_b": "strip",
+        "isi": "20",
+        "flag": "1",
+        "created_at": "2025-07-31T13:03:10.000000Z",
+        "updated_at": "2025-07-31T13:20:27.000000Z",
+        "master": {
+          "nama": "OBH Combi",
+          "kode": "BRG000034",
+          "satuan_k": "botol",
+          "satuan_b": null,
+          "isi": 100,
+          "kandungan": null
+        }
+      }
+    ],
+    "supplier": {
+      "id": 2,
+      "nama": "Apotek Sentosa Supplier",
+      "kode": "SUP002",
+      "tlp": "021-7654321",
+      "bank": "Mandiri",
+      "rekening": "9876543210",
+      "alamat": "Jl. Melati No. 10, Bekasi",
+      "created_at": "2025-07-30T06:16:15.000000Z",
+      "updated_at": "2025-07-30T06:16:15.000000Z"
+    }
+  },
+  "message": "Data Orders berhasil Dikunci"
+}
+```
+### Jika Order Sudah Terkunci (410)
+```json
+{
+  "success": false,
+  "message": "Data ini sudah terkunci."
 }
 ```
 
-### Response (200 - Success)
+## 🔷 POST buka kunci Order 
+**POST** `/api/v1/transactions/order/unlock-order`
 
+> Open Lock Order Hanya bisa jika belum masuk ke penerimaan dan data order dalam kondisi draft
+
+
+### Request Body (FormData)
+
+| Parameter   | Type   | Required | Description                         |
+| ----------- | ------ | -------- | ----------------------------------- |
+| nomor_order | string | ✔️        | nomor_order yang akan di buka kunci |
+
+### Contoh Request
 ```json
 {
-    "data": {
-        "nomor_order": "TRX20230001",
-        "kode_barang": "BRG001",
-        "satuan_k": "PCS",
-        "satuan_b": "BOX",
-        "isi": 10,
-        "created_at": "...",
-        "updated_at": "..."
-    },
-    "message": "Data record berhasil disimpan"
+  "nomor_order": "TRX000004",
 }
 ```
 
-## 🔷 Hapus Order (Header + Records)
+### Response (200)
+```json
+{
+  "success": true,
+  "data": {
+    "id": 4,
+    "nomor_order": "TRX000004",
+    "tgl_order": "2025-07-31",
+    "flag": null,
+    "kode_user": "USR000001",
+    "kode_supplier": "SUP002",
+    "created_at": "2025-07-31T13:03:10.000000Z",
+    "updated_at": "2025-07-31T14:10:05.000000Z",
+    "order_records": [
+      {
+        "id": 9,
+        "nomor_order": "TRX000004",
+        "kode_barang": "BRG000034",
+        "jumlah_pesan": "20",
+        "kode_user": "USR000001",
+        "satuan_k": "pil",
+        "satuan_b": "strip",
+        "isi": "20",
+        "flag": null,
+        "created_at": "2025-07-31T13:03:10.000000Z",
+        "updated_at": "2025-07-31T14:10:05.000000Z",
+        "master": {
+          "nama": "OBH Combi",
+          "kode": "BRG000034",
+          "satuan_k": "botol",
+          "satuan_b": null,
+          "isi": 100,
+          "kandungan": null
+        }
+      }
+    ],
+    "supplier": {
+      "id": 2,
+      "nama": "Apotek Sentosa Supplier",
+      "kode": "SUP002",
+      "tlp": "021-7654321",
+      "bank": "Mandiri",
+      "rekening": "9876543210",
+      "alamat": "Jl. Melati No. 10, Bekasi",
+      "created_at": "2025-07-30T06:16:15.000000Z",
+      "updated_at": "2025-07-30T06:16:15.000000Z"
+    }
+  },
+  "message": "Kunci Data Orders Berhasil Dibuka"
+}
+```
 
+### Jika Order Belum Terkunci (410)
+```json
+{
+  "success": false,
+  "message": "Data ini belum terkunci."
+}
+```
+
+### Jika Order Sudah Masuk Ke penerimaan (410)
+```json
+{
+  "success": false,
+  "message": "Data Order ini Sudah Masuk Ke penerimaan."
+}
+```
+
+## 🔷 POST Hapus Order 
 **POST** `/api/v1/transactions/order/delete`
 
-> Menghapus order lengkap (header dan semua records terkait).
+> Delete Order hanya bisa di status draft
 
-### Request Body
 
+### Request Body (FormData)
+
+| Parameter   | Type   | Required | Description                   |
+| ----------- | ------ | -------- | ----------------------------- |
+| nomor_order | string | ✔️        | Data order yang akan di hapus |
+
+### Contoh Request
 ```json
 {
-    "nomor_order": "TRX20230001" // Required
+  "nomor_order": "TRX000004",
 }
 ```
 
-### Response (200 - Success)
-
+### Response (200)
 ```json
 {
-    "message": "Data order berhasil dihapus"
+  "success": true,
+  "message": "Data order berhasil dihapus"
 }
 ```
 
-### Response (404 - Not Found)
-
+### Jika Sudah Masuk ke penerimaan (410)
 ```json
 {
-    "message": "Nomor order tidak ditemukan"
+  "success": false,
+  "message": "Data Order ini Sudah Masuk Ke penerimaan"
 }
 ```
 
-## 🔷 Hapus Order Header
-
-**POST** `/api/v1/transactions/order/header/delete`
-
-> Menghapus order lengkap (header dan semua records terkait).
-
-### Request Body
-
+### Jika Order Terkunci (410)
 ```json
 {
-    "nomor_order": "TRX20230001" // Required
+  "success": false,
+  "message": "Data Order ini Tidak Dapat dirubah"
 }
 ```
 
-### Response (200 - Success)
+## 🔷 POST Hapus Rinci / record 
+**POST** `/api/v1/transactions/order/delete-record`
 
+> Delete Order Rinci / Record hanya bisa di status draft
+
+
+### Request Body (FormData)
+
+| Parameter   | Type   | Required | Description                         |
+| ----------- | ------ | -------- | ----------------------------------- |
+| nomor_order | string | ✔️        | nomor_order header                  |
+| kode_barang | string | ✔️        | Data order rinci yang akan di hapus |
+
+### Contoh Request
 ```json
 {
-    "data": {
-        "id": 1,
-        "nomor_order": "TRX20230001",
-        "...": "..."
-    },
-    "message": "Data header berhasil dihapus"
+  "nomor_order": "TRX000005",
+  "kode_barang": "BRG000023",
 }
 ```
 
-## 🔷 Hapus Order Record
-
-**POST** `/api/v1/transactions/order/record/delete`
-
-> Menghapus order record tertentu.
-
-### Request Body
-
+### Response (200)
 ```json
 {
-    "nomor_order": "TRX20230001", // Required
-    "kode_barang": "BRG001"
+  "success": true,
+  "data": {
+    "id": 10,
+    "nomor_order": "TRX000005",
+    "kode_barang": "BRG000034",
+    "jumlah_pesan": "20",
+    "kode_user": "USR000001",
+    "satuan_k": "pil",
+    "satuan_b": "strip",
+    "isi": "20",
+    "flag": null,
+    "created_at": "2025-07-31T13:56:35.000000Z",
+    "updated_at": "2025-07-31T13:56:35.000000Z"
+  },
+  "message": "Data record berhasil dihapus"
 }
 ```
 
-### Response (200 - Success)
-
+### Jika Flag Order Terkunci Flag (410)
 ```json
 {
-    "data": {
-        "id": 1,
-        "nomor_order": "TRX20230001",
-        "kode_barang": "BRG001",
-        "...": "..."
-    },
-    "message": "Data record berhasil dihapus"
+  "succes": false,
+  "message": "Data Order ini Tidak Dapat dirubah."
+}
+```
+
+### Jika Sudah Masuk ke penerimaan (410)
+```json
+{
+  "success": false,
+  "message": "Data Order ini Sudah Masuk Ke penerimaan"
 }
 ```
