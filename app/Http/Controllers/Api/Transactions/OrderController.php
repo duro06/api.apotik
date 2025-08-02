@@ -34,16 +34,15 @@ class OrderController extends Controller
             'per_page' => request('per_page', 10),
         ];
 
-
         $query = OrderHeader::query()
+            ->select('order_headers.*')
+            ->leftJoin('suppliers', 'order_headers.kode_supplier', '=', 'suppliers.kode')
             ->when(request('q'), function ($q) {
                 $q->where(function ($query) {
                     $query->where('nomor_order', 'like', '%' . request('q') . '%')
                         ->orWhere('kode_user', 'like', '%' . request('q') . '%')
-                        ->orWhereHas('supplier', function ($q) {
-                            $q->where('kode', 'like', '%' . request('q') . '%')
-                                ->orWhere('nama', 'like', '%' . request('q') . '%');
-                        });
+                        ->orWhere('suppliers.nama', 'LIKE', '%' . request('q') . '%');
+
                 });
             })
             ->when($req['from'] || $req['to'], function ($q) use ($req) {
@@ -58,7 +57,7 @@ class OrderController extends Controller
                 'orderRecords.master:nama,kode,satuan_k,satuan_b,isi,kandungan',
                 'supplier',
             ])
-            ->orderBy($req['order_by'], $req['sort']);
+            ->orderBy('order_headers.' . $req['order_by'], $req['sort']);
         $totalCount = (clone $query)->count();
         $data = $query->simplePaginate($req['per_page']);
 
