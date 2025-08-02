@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('penerimaan_rs', function (Blueprint $table) {
-            $table->string('nobatch')->default(0)->after('kdbarang');
+            $table->string('nobatch')->default(0)->after('kode_barang');
         });
     }
 
