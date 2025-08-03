@@ -43,7 +43,7 @@ class DokterController extends Controller
         $validated = $request->validate([
             'nama_dokter' => 'required',
             'kode' => 'nullable',
-             'alamat' => 'required',
+            'alamat' => 'required',
         ], [
             'nama.required' => 'Nama wajib diisi.'
         ]);
@@ -51,7 +51,7 @@ class DokterController extends Controller
         if (!$kode) {
             DB::select('call kode_dokter(@nomor)');
             $nomor = DB::table('counter')->select('kode_dokter')->first();
-            $validated['kode'] = FormatingHelper::genKodeDinLength($nomor->kode_jabatan, 4, 'DK');
+            $validated['kode'] = FormatingHelper::genKodeDinLength($nomor->kode_dokter, 4, 'DK');
         }
 
         $data = Dokter::updateOrCreate(
@@ -62,7 +62,7 @@ class DokterController extends Controller
         );
         return new JsonResponse([
             'data' => $data,
-            'message' => 'Data Jabatan berhasil disimpan'
+            'message' => 'Data Dokter berhasil disimpan'
         ]);
     }
 
