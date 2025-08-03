@@ -1,18 +1,26 @@
-# Dokumentasi API Penjualan
+# 📄 Dokumentasi API PenjualanController
 
-## 1. Daftar Obat
+Base URL: `/api/transactions/penjualan`
 
-**Endpoint:** `GET /api/penjualan/obat`
+---
 
-**Query Parameters:**
+## 🔷 Get List Obat
 
--   `q` (string, optional): Pencarian nama/kode obat.
--   `order_by` (string, default: `nama`): Kolom pengurutan.
--   `sort` (string, default: `asc`): Urutan (`asc`/`desc`).
--   `page` (int, default: 1): Halaman.
--   `per_page` (int, default: 10): Jumlah data per halaman.
+**GET** `/get-list-obat`
 
-**Response:**
+> Mengambil daftar obat dengan stok untuk penjualan.
+
+### Query Parameters
+
+| Parameter | Type   | Required | Default | Notes                                 |
+| --------- | ------ | -------- | ------- | ------------------------------------- |
+| q         | string | ❌       | -       | Kata kunci pencarian (`nama`, `kode`) |
+| order_by  | string | ❌       | `nama`  | Kolom untuk sorting                   |
+| sort      | string | ❌       | `asc`   | Arah sorting: `asc` atau `desc`       |
+| per_page  | int    | ❌       | 10      | Jumlah item per halaman               |
+| page      | int    | ❌       | 1       | Halaman yang diambil                  |
+
+### Response Success (200)
 
 ```json
 {
@@ -21,31 +29,36 @@
             "id": 1,
             "kode": "OBT001",
             "nama": "Paracetamol",
-            "satuan_k": "...",
-            "satuan_b": "...",
+            "satuan_k": "Tablet",
+            "satuan_b": "Box",
             "isi": 10,
-            "kandungan": "..."
+            "kandungan": "500mg"
         }
-        // ...
     ]
 }
 ```
 
 ---
 
-## 2. Daftar Penjualan
+## 🔷 Get List Penjualan
 
-**Endpoint:** `GET /api/penjualan`
+**GET** `/get-list`
 
-**Query Parameters:**
+> Mengambil daftar transaksi penjualan dengan filter tanggal.
 
--   `q` (string, optional): Pencarian nama/kode penjualan.
--   `order_by` (string, default: `created_at`): Kolom pengurutan.
--   `sort` (string, default: `asc`): Urutan (`asc`/`desc`).
--   `page` (int, default: 1): Halaman.
--   `per_page` (int, default: 10): Jumlah data per halaman.
+### Query Parameters
 
-**Response:**
+| Parameter | Type   | Required | Default      | Notes                                |
+| --------- | ------ | -------- | ------------ | ------------------------------------ |
+| q         | string | ❌       | -            | Kata kunci pencarian                 |
+| order_by  | string | ❌       | `created_at` | Kolom untuk sorting                  |
+| sort      | string | ❌       | `asc`        | Arah sorting: `asc` atau `desc`      |
+| per_page  | int    | ❌       | 10           | Jumlah item per halaman              |
+| page      | int    | ❌       | 1            | Halaman yang diambil                 |
+| from      | date   | ❌       | today        | Filter tanggal awal (format: Y-m-d)  |
+| to        | date   | ❌       | today        | Filter tanggal akhir (format: Y-m-d) |
+
+### Response Success (200)
 
 ```json
 {
@@ -53,63 +66,83 @@
         {
             "id": 1,
             "nopenjualan": "TRX0001",
-            "tgl_penjualan": "2024-06-01",
-            "kode_pelanggan": "...",
-            "kode_dokter": "...",
-            "cara_bayar": "...",
+            "tgl_penjualan": "2024-01-01 14:30:00",
+            "kode_pelanggan": "PLG001",
+            "kode_dokter": "DOK001",
+            "cara_bayar": "TUNAI",
+            "flag": null,
+            "diskon": 0,
+            "jumlah_bayar": 0,
+            "kembali": 0,
             "rinci": [
                 {
+                    "id": 1,
+                    "nopenjualan": "TRX0001",
                     "kode_barang": "OBT001",
                     "jumlah_k": 10,
+                    "jumlah_b": 1,
                     "harga_jual": 5000,
+                    "harga_beli": 4000,
                     "subtotal": 50000,
                     "master": {
                         "nama": "Paracetamol",
                         "kode": "OBT001",
-                        "satuan_k": "...",
-                        "satuan_b": "...",
+                        "satuan_k": "Tablet",
+                        "satuan_b": "Box",
                         "isi": 10,
-                        "kandungan": "..."
+                        "kandungan": "500mg"
                     }
                 }
             ]
         }
-        // ...
     ],
+    "links": {
+        "first": "...",
+        "last": "...",
+        "prev": null,
+        "next": "..."
+    },
     "meta": {
-        "total": 100,
+        "current_page": 1,
+        "from": 1,
+        "path": "...",
         "per_page": 10,
-        "current_page": 1
+        "to": 10,
+        "total": 100
     }
 }
 ```
 
 ---
 
-## 3. Simpan Penjualan (Tambah/Update)
+## 📌 Simpan Penjualan
 
-**Endpoint:** `POST /api/penjualan/simpan`
+**POST** `/tambah`
 
-**Body Parameters:**
+> Tambah atau update transaksi penjualan.
 
--   `nopenjualan` (string, optional): Nomor penjualan (jika update).
--   `tgl_penjualan` (date, optional): Tanggal penjualan.
--   `kode_pelanggan` (string, optional)
--   `kode_dokter` (string, optional)
--   `kode_barang` (string, required)
--   `jumlah_k` (int, required)
--   `satuan_k` (string, optional)
--   `satuan_b` (string, optional)
--   `isi` (int, required)
--   `harga_jual` (int, required)
--   `harga_beli` (int, required)
--   `id_penerimaan_rinci` (int, required)
--   `nopenerimaan` (string, required)
--   `nobatch` (string, required)
--   `tgl_exprd` (date, required)
--   `id_stok` (int, required)
+### Body Parameters
 
-**Response:**
+| Field               | Type   | Required | Notes                           |
+| ------------------- | ------ | -------- | ------------------------------- |
+| nopenjualan         | string | ❌       | Auto-generated jika tidak diisi |
+| tgl_penjualan       | date   | ❌       | Default: waktu sekarang         |
+| kode_pelanggan      | string | ❌       | -                               |
+| kode_dokter         | string | ❌       | -                               |
+| kode_barang         | string | ✅       | Kode obat yang dijual           |
+| jumlah_k            | int    | ✅       | Jumlah dalam satuan kecil       |
+| satuan_k            | string | ❌       | -                               |
+| satuan_b            | string | ❌       | -                               |
+| isi                 | int    | ✅       | Isi per satuan besar            |
+| harga_jual          | int    | ✅       | Harga jual per satuan           |
+| harga_beli          | int    | ✅       | Harga beli per satuan           |
+| id_penerimaan_rinci | int    | ✅       | ID rincian penerimaan stok      |
+| nopenerimaan        | string | ✅       | Nomor penerimaan stok           |
+| nobatch             | string | ✅       | Nomor batch obat                |
+| tgl_exprd           | date   | ✅       | Tanggal kadaluarsa              |
+| id_stok             | int    | ✅       | ID stok obat                    |
+
+### Response Success (200)
 
 ```json
 {
@@ -121,19 +154,23 @@
 
 ---
 
-## 4. Pembayaran Penjualan
+## 📌 Pembayaran Penjualan
 
-**Endpoint:** `POST /api/penjualan/bayar`
+**POST** `/bayar`
 
-**Body Parameters:**
+> Proses pembayaran transaksi penjualan.
 
--   `id` (int, required): ID header penjualan.
--   `diskon` (int, optional): Diskon.
--   `jumlah_bayar` (int, required): Jumlah uang dibayarkan.
--   `kembali` (int, optional): Uang kembalian.
--   `cara_bayar` (string, required): Metode pembayaran.
+### Body Parameters
 
-**Response:**
+| Field        | Type   | Required | Notes                       |
+| ------------ | ------ | -------- | --------------------------- |
+| id           | int    | ✅       | ID header penjualan         |
+| diskon       | int    | ❌       | Nilai diskon                |
+| jumlah_bayar | int    | ✅       | Jumlah uang yang dibayarkan |
+| kembali      | int    | ❌       | Uang kembalian              |
+| cara_bayar   | string | ✅       | Metode pembayaran           |
+
+### Response Success (200)
 
 ```json
 {
@@ -144,15 +181,19 @@
 
 ---
 
-## 5. Hapus Rincian Penjualan
+## 📌 Hapus Rincian
 
-**Endpoint:** `DELETE /api/penjualan/hapus`
+**POST** `/hapus`
 
-**Body Parameters:**
+> Hapus rincian penjualan berdasarkan ID.
 
--   `id` (int, required): ID rincian penjualan.
+### Body Parameters
 
-**Response:**
+| Field | Type | Required | Notes                |
+| ----- | ---- | -------- | -------------------- |
+| id    | int  | ✅       | ID rincian penjualan |
+
+### Response Success (200)
 
 ```json
 {
@@ -162,7 +203,28 @@
 
 ---
 
-**Catatan:**
+### 🔷 Catatan
 
--   Semua endpoint membutuhkan autentikasi.
--   Jika terjadi error, response akan berisi pesan error dan detail trace untuk debugging.
+✅ Semua endpoint membutuhkan autentikasi Sanctum.
+
+✅ Response error validasi (422):
+
+```json
+{
+    "message": "The given data was invalid.",
+    "errors": {
+        "field": ["Pesan error di sini."]
+    }
+}
+```
+
+✅ Response error sistem (410):
+
+```json
+{
+    "message": "Pesan error",
+    "file": "...",
+    "line": "...",
+    "trace": [...]
+}
+```
