@@ -211,6 +211,7 @@ class PenjualanController extends Controller
                 'kode_user' => $user->kode,
                 'flag' => '1'
             ]);
+            // kurangi stok di tabel stok
             DB::commit();
             $data->load([
                 'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
