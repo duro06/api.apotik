@@ -29,7 +29,7 @@ class PelangganController extends Controller
                 $query->where('nama', 'like', '%' . request('q') . '%')
                     ->orWhere('kode', 'like', '%' . request('q') . '%');
             });
-        })
+        })->whereNull('hidden')
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
@@ -77,7 +77,7 @@ class PelangganController extends Controller
                 'message' => 'Data Pelanggan tidak ditemukan'
             ], 410);
         }
-        $data->delete();
+        $data->update(['hidden' => '1']);
         return new JsonResponse([
             'data' => $data,
             'message' => 'Data Pelanggan berhasil dihapus'

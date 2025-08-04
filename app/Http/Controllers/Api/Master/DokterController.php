@@ -28,8 +28,8 @@ class DokterController extends Controller
                 $query->where('nama_dokter', 'like', '%' . request('q') . '%')
                     ->orWhere('kode', 'like', '%' . request('q') . '%');
             });
-        })
-        ->orderBy($req['order_by'], $req['sort']);
+        })->whereNull('hidden')
+            ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
 
@@ -65,5 +65,4 @@ class DokterController extends Controller
             'message' => 'Data Dokter berhasil disimpan'
         ]);
     }
-
 }

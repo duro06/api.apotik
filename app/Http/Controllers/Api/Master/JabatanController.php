@@ -28,7 +28,7 @@ class JabatanController extends Controller
                 $query->where('nama', 'like', '%' . request('q') . '%')
                     ->orWhere('kode', 'like', '%' . request('q') . '%');
             });
-        })
+        })->whereNull('hidden')
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
@@ -74,7 +74,7 @@ class JabatanController extends Controller
                 'message' => 'Data Jabatan tidak ditemukan'
             ], 410);
         }
-        $jabatan->delete();
+        $jabatan->update(['hidden' => '1']);
         return new JsonResponse([
             'data' => $jabatan,
             'message' => 'Data Jabatan berhasil dihapus'

@@ -26,7 +26,7 @@ class PenjualanController extends Controller
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
         ];
-        // ini masih kurang with stok
+        // ini masih kurang with stok dan barang yang di ambil itu yang hidden nya di master adalah null
         $data = Barang::when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');

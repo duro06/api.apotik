@@ -26,7 +26,8 @@ class BarangController extends Controller
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
         })
-            ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
+            ->whereNull('hidden')
+            ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
 
@@ -77,7 +78,7 @@ class BarangController extends Controller
                 'message' => 'Data barang tidak ditemukan'
             ], 410);
         }
-        $barang->delete();
+        $barang->update(['hidden' => '1']);
         return new JsonResponse([
             'data' => $barang,
             'message' => 'Data barang berhasil dihapus'
