@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('penerimaan_hs', function (Blueprint $table) {
             $table->id();
-            $table->string('nopenerimaan');
-            $table->string('noorder');
+            $table->string('nopenerimaan')->nullable();
+            $table->string('noorder')->nullable();
             $table->date('tgl_penerimaan')->default(now());
-            $table->string('nofaktur');
-            $table->date('tgl_faktur');
-            $table->string('kode_suplier');
-            $table->string('jenispajak');
-            $table->string('pajak');
-            $table->string('kode_user');
-            $table->string('flag');
+            $table->string('nofaktur')->nullable();
+            $table->date('tgl_faktur')->nullable();
+            $table->string('kode_suplier')->nullable();
+            $table->string('jenispajak')->nullable();
+            $table->string('pajak')->nullable();
+            $table->string('kode_user')->nullable();
+            $table->string('flag')->nullable();
             $table->timestamps();
         });
     }
