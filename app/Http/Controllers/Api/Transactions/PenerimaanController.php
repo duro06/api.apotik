@@ -62,6 +62,7 @@ class PenerimaanController extends Controller
             'pajak' => 'nullable',
             'kode_barang' => 'required',
             'nobatch' => 'required',
+            'tgl_exprd' => 'required',
             'jumlah_b' => 'required',
             'jumlah_k' => 'required',
             'harga' => 'required',
@@ -81,6 +82,7 @@ class PenerimaanController extends Controller
             'jenispajak.required' => 'Jenis Pajak Harus Di isi.',
             'kode_barang.required' => 'Kode Barang Harus Di isi.',
             'nobatch.required' => 'No. Batch Harus Di isi.',
+            'tgl_exprd.required' => 'Tanggal Expired Harus Di isi.',
             'isi.required' => 'Isi per Satuan Besar Barang Harus Di isi.',
             'jumlah_b.required' => 'Jumlah Satuan Besar Harus Di isi.',
             'jumlah_k.required' => 'Jumlah Satuan Kecil Harus Di isi.',
@@ -148,6 +150,7 @@ class PenerimaanController extends Controller
                     'noorder' => $validated['noorder'],
                     'kode_barang' => $validated['kode_barang'],
                     'nobatch' => $validated['nobatch'],
+                    'tgl_exprd' => $validated['tgl_exprd'],
                     'isi' => $validated['isi'],
                     'satuan_b' => $validated['satuan_b'],
                     'satuan_k' => $validated['satuan_k'],
@@ -195,5 +198,35 @@ class PenerimaanController extends Controller
             ], 410);
         }
 
+    }
+
+    public function hapus(Request $request)
+    {
+        $cek = Penerimaan_h::where('nopenerimaan', $request->nopenerimaan)->where('flag', '1')->count();
+        if ($cek > 0) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Data ini sudah terkunci.'
+            ], 410);
+        }
+
+        try {
+            DB::beginTransaction();
+            // Hapus order records
+            Penerimaan_r::where('id', $request->id)->delete();
+
+            DB::commit();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Data order berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 410);
+        }
     }
 }
