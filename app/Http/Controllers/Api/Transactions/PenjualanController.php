@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Master\Barang;
 use App\Models\Transactions\PenjualanH;
 use App\Models\Transactions\PenjualanR;
+use App\Models\Transactions\Stok;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -27,10 +28,26 @@ class PenjualanController extends Controller
             'per_page' => request('per_page') ?? 10,
         ];
         // ini masih kurang with stok dan barang yang di ambil itu yang hidden nya di master adalah null
-        $data = Barang::when(request('q'), function ($q) {
-            $q->where('nama', 'like', '%' . request('q') . '%')
-                ->orWhere('kode', 'like', '%' . request('q') . '%');
-        })
+        $data = Stok::select(
+            'nama',
+            'kode',
+            'harga_jual_resep_k',
+            'harga_jual_biasa_k',
+            'id_penerimaan_rinci',
+            'stoks.id as id_stok',
+            'stoks.harga_total as harga_beli',
+            'stoks.satuan_k',
+            'stoks.satuan_b',
+            'stoks.isi',
+            'stoks.nobatch',
+            'stoks.tgl_exprd',
+
+        )
+            ->leftJoin('barangs', 'stoks.kode_barang', '=', 'barangs.kode')
+            ->when(request('q'), function ($q) {
+                $q->where('nama', 'like', '%' . request('q') . '%')
+                    ->orWhere('kode', 'like', '%' . request('q') . '%');
+            })
             ->orderBy($req['order_by'], $req['sort'])
             ->limit($req['per_page'])->get();
 
@@ -68,8 +85,9 @@ class PenjualanController extends Controller
 
     public function simpan(Request $request): JsonResponse
     {
+        $nomorPen = $request->nopenjualan;
         $validated = $request->validate([
-            'nopenjualan' => 'nullable',
+
             'tgl_penjualan' => 'nullable',
             'kode_pelanggan' => 'nullable',
             'kode_dokter' => 'nullable',
@@ -101,7 +119,7 @@ class PenjualanController extends Controller
         try {
             DB::beginTransaction();
             $user = Auth::user();
-            if (!$validated['nopenjualan']) {
+            if (!$nomorPen) {
                 DB::select('call nopenjualan(@nomor)');
                 $nomor = DB::table('counter')->select('nopenjualan')->first();
                 $nopenjualan = FormatingHelper::genKodeBarang($nomor->nopenjualan, 'TRX');
@@ -199,8 +217,9 @@ class PenjualanController extends Controller
             if ((int)$jumlahBayar < (int)$nilaiBayar) {
                 throw new Exception('Jumlah Pembayaran kurang, minimal ' . $nilaiBayar);
             }
+            $nilaiKelbalian = (int)$jumlahBayar - (int)$nilaiBayar;
             // validasi kembalian
-            if ($kembali == 0) $kembali = (int)$jumlahBayar - (float)$nilaiBayar;
+            if ($kembali != $nilaiKelbalian) $kembali = (int)$jumlahBayar - (float)$nilaiBayar;
             else $kembali = $validated['kembali'];
             // update data
             $data->update([
@@ -212,6 +231,14 @@ class PenjualanController extends Controller
                 'flag' => '1'
             ]);
             // kurangi stok di tabel stok
+            $rincian = PenjualanR::where('nopenjualan', $data->nopenjualan)->get();
+            foreach ($rincian as $rinci) {
+                $stok = Stok::find($rinci->id_stok);
+                $jumlah = (int)$stok->jumlah_k - (int)$rinci->jumlah_k;
+                $stok->update([
+                    'jumlah_k' => $jumlah,
+                ]);
+            }
             DB::commit();
             $data->load([
                 'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
