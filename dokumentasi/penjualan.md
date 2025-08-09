@@ -26,13 +26,18 @@ Base URL: `/api/transactions/penjualan`
 {
     "data": [
         {
-            "id": 1,
-            "kode": "OBT001",
             "nama": "Paracetamol",
+            "kode": "OBT001",
+            "harga_jual_resep_k": "8000",
+            "harga_jual_biasa_k": "6000",
+            "id_penerimaan_rinci": 1,
+            "id_stok": 1,
+            "harga_beli": "4000",
             "satuan_k": "Tablet",
             "satuan_b": "Box",
             "isi": 10,
-            "kandungan": "500mg"
+            "nobatch": "B001",
+            "tgl_exprd": "2025-01-01"
         }
     ]
 }
@@ -174,10 +179,49 @@ Base URL: `/api/transactions/penjualan`
 
 ```json
 {
-  "message": "Pembayaran berhasil dilakukan",
-  "data": { ...header penjualan... }
+    "message": "Pembayaran berhasil dilakukan",
+    "data": {
+        "id": 1,
+        "nopenjualan": "TRX0001",
+        "tgl_penjualan": "2024-01-01 14:30:00",
+        "kode_pelanggan": "PLG001",
+        "kode_dokter": "DOK001",
+        "cara_bayar": "TUNAI",
+        "flag": "1",
+        "diskon": 0,
+        "jumlah_bayar": 50000,
+        "kembali": 0,
+        "rinci": [
+            {
+                "id": 1,
+                "nopenjualan": "TRX0001",
+                "kode_barang": "OBT001",
+                "jumlah_k": 10,
+                "jumlah_b": 1,
+                "harga_jual": 5000,
+                "harga_beli": 4000,
+                "subtotal": 50000,
+                "master": {
+                    "nama": "Paracetamol",
+                    "kode": "OBT001",
+                    "satuan_k": "Tablet",
+                    "satuan_b": "Box",
+                    "isi": 10,
+                    "kandungan": "500mg"
+                }
+            }
+        ]
+    }
 }
 ```
+
+### Catatan Tambahan
+
+✅ Saat pembayaran berhasil:
+
+-   Status transaksi (`flag`) akan diubah menjadi "1"
+-   Stok obat akan otomatis berkurang sesuai jumlah pembelian
+-   Jika kembalian yang dikirim tidak sesuai perhitungan, sistem akan menghitung ulang
 
 ---
 
