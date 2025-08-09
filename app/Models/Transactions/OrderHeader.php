@@ -22,4 +22,9 @@ class OrderHeader extends Model
     {
         return $this->belongsTo(Supplier::class, 'kode_supplier', 'kode');
     }
+
+    public function penerimaan()
+    {
+        return $this->belongsTo(Penerimaan_h::class,'nomor_order', 'noorder');
+    }
 }

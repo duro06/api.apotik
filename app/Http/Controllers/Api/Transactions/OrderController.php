@@ -19,7 +19,10 @@ class OrderController extends Controller
     /**
      * Fix Controller 
      * 
-     * Flagging : null = draft, 1 = kunci
+     * Flagging : 
+     * null = draft
+     * 1 = kunci
+     * 2 = kunci double
      */
 
     // get list of orders (header & records)
@@ -31,6 +34,7 @@ class OrderController extends Controller
             'page' => request('page', 1),
             'from' => request('from'),
             'to' => request('to'),
+            'flag' => request('flag'),
             'per_page' => request('per_page', 10),
         ];
 
@@ -45,6 +49,13 @@ class OrderController extends Controller
 
                 });
             })
+            ->when(isset($req['flag']), function ($q) use ($req) {
+                if ($req['flag'] === 'null' || $req['flag'] === null || $req['flag'] === '') {
+                    $q->whereNull('order_headers.flag');
+                } else if (is_numeric($req['flag'])) {
+                    $q->where('order_headers.flag', (int) $req['flag']);
+                }
+            })
             ->when($req['from'] || $req['to'], function ($q) use ($req) {
                 if ($req['from']) {
                     $q->whereDate('tgl_order', '>=', $req['from']);
@@ -56,6 +67,7 @@ class OrderController extends Controller
             ->with([
                 'orderRecords.master:nama,kode,satuan_k,satuan_b,isi,kandungan',
                 'supplier',
+                'penerimaan.rincian'
             ])
             ->orderBy('order_headers.' . $req['order_by'], $req['sort']);
         $totalCount = (clone $query)->count();

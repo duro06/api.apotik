@@ -19,6 +19,7 @@ Base URL: `/api/v1/transactions/order`
 | page      | int    | ❌        | 1            | Halaman yang diambil                                                                |
 | from      | date   | ❌        | -            | Date format Y-m-d contoh (2025-07-31)                                               |
 | to        | date   | ❌        | -            | Date format Y-m-d contoh (2025-07-31)                                               |
+| flag      | string | ❌        | -            | Date format Y-m-d contoh (2025-07-31)                                               |
 
 ### Contoh Request
 
@@ -26,67 +27,137 @@ Base URL: `/api/v1/transactions/order`
 GET /api/v1/transactions/order/get-list?from=2025-07-31&to=2025-07-31&q=SUP002
 ```
 
+### Contoh http flag
+| url                                           | Keterangan                                   |
+| --------------------------------------------- | -------------------------------------------- |
+| /api/v1/transactions/order/get-list?flag      | Default yang tampil semua data               |
+| /api/v1/transactions/order/get-list?flag=null | Data yang tampil hanya di kondisi *DRAFT*    |
+| /api/v1/transactions/order/get-list?flag=1    | Data yang tampil hanya di kondisi *TERKUNCI* |
+
 ### Response (200)
 
 ```json
 {
   "data": [
     {
-      "id": 4,
-      "nomor_order": "TRX000004",
-      "tgl_order": "2025-07-31",
+      "id": 2,
+      "nomor_order": "TRX000002",
+      "tgl_order": "2025-07-30",
       "flag": "1",
       "kode_user": "USR000001",
-      "kode_supplier": "SUP002",
-      "created_at": "2025-07-31T13:03:10.000000Z",
-      "updated_at": "2025-07-31T13:20:27.000000Z",
+      "kode_supplier": "SUP001",
+      "created_at": "2025-07-30T06:44:37.000000Z",
+      "updated_at": "2025-07-31T13:20:15.000000Z",
       "order_records": [
         {
-          "id": 9,
-          "nomor_order": "TRX000004",
-          "kode_barang": "BRG000034",
-          "jumlah_pesan": "20",
+          "id": 2,
+          "nomor_order": "TRX000002",
+          "kode_barang": "BRG000003",
+          "jumlah_pesan": null,
           "kode_user": "USR000001",
-          "satuan_k": "pil",
-          "satuan_b": "strip",
-          "isi": "20",
+          "satuan_k": "pcs",
+          "satuan_b": "box",
+          "isi": "10",
           "flag": "1",
-          "created_at": "2025-07-31T13:03:10.000000Z",
-          "updated_at": "2025-07-31T13:20:27.000000Z",
+          "created_at": "2025-07-30T06:44:37.000000Z",
+          "updated_at": "2025-07-31T13:20:15.000000Z",
           "master": {
-            "nama": "OBH Combi",
-            "kode": "BRG000034",
+            "nama": "Ibuprofen",
+            "kode": "BRG000003",
             "satuan_k": "botol",
             "satuan_b": null,
             "isi": 100,
+            "kandungan": "200mg/5ml"
+          }
+        },
+      ],
+      "supplier": {
+        "id": 1,
+        "nama": "PT Kimia Farma",
+        "kode": "SUP001",
+        "hidden": null,
+        "tlp": "021-1234567",
+        "bank": "BCA",
+        "rekening": "1234567890",
+        "alamat": "Jl. Veteran No. 12, Jakarta",
+        "created_at": "2025-07-30T06:16:15.000000Z",
+        "updated_at": "2025-07-30T06:16:15.000000Z"
+      },
+      "penerimaan": {
+        "id": 1,
+        "nopenerimaan": "PN0001",
+        "noorder": "TRX000002",
+        "tgl_penerimaan": "2025-07-30",
+        "nofaktur": "NF0001",
+        "tgl_faktur": "2025-07-30",
+        "kode_suplier": "SUP002",
+        "jenispajak": "negara",
+        "pajak": "100000",
+        "kode_user": "USR000001",
+        "flag": "1",
+        "created_at": null,
+        "updated_at": null,
+        "rincian": []
+      }
+    },
+    {
+      "id": 3,
+      "nomor_order": "TRX000003",
+      "tgl_order": "2025-07-31",
+      "flag": null,
+      "kode_user": "USR000001",
+      "kode_supplier": "SUP001",
+      "created_at": "2025-07-30T06:44:47.000000Z",
+      "updated_at": "2025-07-30T06:44:47.000000Z",
+      "order_records": [
+        {
+          "id": 3,
+          "nomor_order": "TRX000003",
+          "kode_barang": "BRG000030",
+          "jumlah_pesan": null,
+          "kode_user": "USR000001",
+          "satuan_k": "pcs",
+          "satuan_b": "box",
+          "isi": "10",
+          "flag": null,
+          "created_at": "2025-07-30T06:44:47.000000Z",
+          "updated_at": "2025-07-30T06:44:47.000000Z",
+          "master": {
+            "nama": "Bodrex",
+            "kode": "BRG000030",
+            "satuan_k": "strip",
+            "satuan_b": null,
+            "isi": 10,
             "kandungan": null
           }
         }
       ],
       "supplier": {
-        "id": 2,
-        "nama": "Apotek Sentosa Supplier",
-        "kode": "SUP002",
-        "tlp": "021-7654321",
-        "bank": "Mandiri",
-        "rekening": "9876543210",
-        "alamat": "Jl. Melati No. 10, Bekasi",
+        "id": 1,
+        "nama": "PT Kimia Farma",
+        "kode": "SUP001",
+        "hidden": null,
+        "tlp": "021-1234567",
+        "bank": "BCA",
+        "rekening": "1234567890",
+        "alamat": "Jl. Veteran No. 12, Jakarta",
         "created_at": "2025-07-30T06:16:15.000000Z",
         "updated_at": "2025-07-30T06:16:15.000000Z"
-      }
+      },
+      "penerimaan": null
     }
   ],
   "meta": {
     "first": "http://localhost:8185/api/v1/transactions/order/get-list?page=1",
-    "last": "http://localhost:8185/api/v1/transactions/order/get-list?page=1",
+    "last": "http://localhost:8185/api/v1/transactions/order/get-list?page=5",
     "prev": null,
-    "next": null,
+    "next": "http://localhost:8185/api/v1/transactions/order/get-list?page=2",
     "current_page": 1,
-    "per_page": 10,
-    "total": 1,
-    "last_page": 1,
+    "per_page": 2,
+    "total": 10,
+    "last_page": 5,
     "from": 1,
-    "to": 1
+    "to": 2
   }
 }
 ```
