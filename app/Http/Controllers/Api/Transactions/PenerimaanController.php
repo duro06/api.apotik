@@ -7,6 +7,7 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Transactions\Penerimaan_h;
 use App\Models\Transactions\Penerimaan_r;
+use App\Models\Transactions\Stok;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -115,6 +116,7 @@ class PenerimaanController extends Controller
 
         try {
             DB::beginTransaction();
+            $user = Auth::user();
             $penerimaanHeader = Penerimaan_h::updateOrCreate(
                 [
                     'nopenerimaan' => $nopenerimaan,
@@ -162,7 +164,7 @@ class PenerimaanController extends Controller
                     'diskon_rupiah' => $diskon_rupiah,
                     'harga_total' => $harga_total,
                     'subtotal' =>  $subtotal,
-                    'kode_user' => ''
+                    'kode_user' => $user
                 ]
             );
 
@@ -226,6 +228,98 @@ class PenerimaanController extends Controller
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 410);
+        }
+    }
+
+    public function lock_penerimaan(Request $request)
+    {
+        $validated = $request->validate([
+            'nopenerimaan' => 'required',
+        ], [
+            'nopenerimaan.required' => 'No. Penerimaan Harus Di isi.',
+        ]);
+
+        $existingHeader = Penerimaan_h::where('nopenerimaan', $validated['nopenerimaan'])->first();
+        if (!$existingHeader) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Data Penerimaan Tidak Ditemukan.'
+            ], 410);
+        }
+        if ($existingHeader && $existingHeader->flag == '1') {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Data ini sudah terkunci.'
+            ], 410);
+        }
+
+        try {
+            DB::beginTransaction();
+                $caripenerimaan = Penerimaan_h::where(
+                    [
+                        'nopenerimaan' => $validated['nopenerimaan'],
+                    ]
+                )->update(
+                        [
+                            'flag' => '1', // Lock Table
+                        ]
+                    );
+                if (!$caripenerimaan) {
+                    throw new \Exception('Transaksi Gagal Disimpan.');
+                }
+
+                $user = Auth::user();
+                $requestData = $request->payload;
+                foreach ($requestData as $key => $value) {
+                Stok::create(
+                        [
+                            'nopenerimaan' => $value['nopenerimaan'],
+                            'noorder' => $value['noorder'],
+                            'kode_barang' => $value['kode_barang'],
+                            'nobatch' => $value['nobatch'],
+                            'id_penerimaan_rinci' => $value['id_penerimaan_rinci'],
+                            'isi' => $value['isi'],
+                            'satuan_b' => $value['satuan_b'],
+                            'satuan_k' => $value['satuan_k'],
+                            'jumlah_b' => $value['jumlah_b'],
+                            'jumlah_k' => $value['jumlah_k'],
+                            'harga' => $value['harga'],
+                            'pajak_rupiah' => $value['pajak_rupiah'],
+                            'diskon_persen' => $value['diskon_persen'],
+                            'diskon_rupiah' => $value['diskon_rupiah'],
+                            'harga_total' => $value['harga_total'],
+                            'subtotal' => $value['subtotal'],
+                            'tgl_exprd' => $value['tgl_exprd'],
+                            'kode_user' => $user,
+                        ]
+                    );
+                }
+
+                $caripenerimaan->load([
+                'rincian' => function ($query) {
+                    $query->with(['barang']);
+                },
+                'suplier',
+            ]);
+
+        DB::commit();
+
+            return new JsonResponse([
+                'success' => true,
+                'data' => $caripenerimaan,
+                'message' => 'Data Penerimaan berhasil Dikunci'
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'user' => Auth::user(),
+                'trace' => $e->getTrace(),
+
             ], 410);
         }
     }
