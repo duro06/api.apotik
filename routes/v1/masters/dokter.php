@@ -10,5 +10,5 @@ Route::group([
 ], function () {
     Route::get('/get-list', [DokterController::class, 'index']);
     Route::post('/simpan', [DokterController::class, 'store']);
-    Route::post('/hapus', [DokterController::class, 'hapus']);
+    Route::post('/delete', [DokterController::class, 'hapus']);
 });
