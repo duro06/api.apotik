@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('penerimaan_rs', function (Blueprint $table) {
-            $table->date('tgl_exprd')->default(0)->after('nobatch');
+            $table->date('tgl_exprd')->nullable()->after('nobatch');
         });
     }
 
