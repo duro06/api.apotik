@@ -45,7 +45,8 @@ class DokterController extends Controller
             'kode' => 'nullable',
             'alamat' => 'required',
         ], [
-            'nama.required' => 'Nama wajib diisi.'
+            'nama.required' => 'Nama wajib diisi.',
+            'alamat.required' => 'Alamat wajib diisi.'
         ]);
 
         if (!$kode) {
@@ -63,6 +64,21 @@ class DokterController extends Controller
         return new JsonResponse([
             'data' => $data,
             'message' => 'Data Dokter berhasil disimpan'
+        ]);
+    }
+
+    public function hapus(Request $request)
+    {
+        $data = Dokter::find($request->id);
+        if (!$data) {
+            return new JsonResponse([
+                'message' => 'Data Dokter tidak ditemukan'
+            ], 410);
+        }
+        $data->update(['hidden' => '1']);
+        return new JsonResponse([
+            'data' => $data,
+            'message' => 'Data Dokter berhasil dihapus'
         ]);
     }
 }
