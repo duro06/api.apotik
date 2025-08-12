@@ -256,18 +256,7 @@ class PenerimaanController extends Controller
 
         try {
             DB::beginTransaction();
-                $caripenerimaan = Penerimaan_h::where(
-                    [
-                        'nopenerimaan' => $validated['nopenerimaan'],
-                    ]
-                )->update(
-                        [
-                            'flag' => '1', // Lock Table
-                        ]
-                    );
-                if (!$caripenerimaan) {
-                    throw new \Exception('Transaksi Gagal Disimpan.');
-                }
+                $existingHeader->update(['flag' => '1']);
 
                 $user = Auth::user();
                 $requestData = $request->payload;
@@ -296,18 +285,18 @@ class PenerimaanController extends Controller
                     );
                 }
 
-                $caripenerimaan->load([
-                'rincian' => function ($query) {
-                    $query->with(['barang']);
-                },
-                'suplier',
-            ]);
+                $existingHeader->load([
+                    'rincian' => function ($query) {
+                        $query->with(['barang']);
+                    },
+                    'suplier',
+                ]);
 
         DB::commit();
 
             return new JsonResponse([
                 'success' => true,
-                'data' => $caripenerimaan,
+                'data' => $existingHeader,
                 'message' => 'Data Penerimaan berhasil Dikunci'
             ], 201);
         } catch (\Exception $e) {
