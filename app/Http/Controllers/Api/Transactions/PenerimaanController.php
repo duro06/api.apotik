@@ -127,7 +127,7 @@ class PenerimaanController extends Controller
                     'nofaktur' => $validated['nofaktur'],
                     'tgl_faktur' => $validated['tgl_faktur'],
                     'jenispajak' => $validated['jenispajak'],
-                    'kode_user' => $user ?? 'sasa',
+                    'kode_user' => $user->kode,
                     'pajak' => $validated['pajak'],
                     'kode_suplier' => $validated['kode_suplier'],
                 ]
@@ -164,7 +164,7 @@ class PenerimaanController extends Controller
                     'diskon_rupiah' => $diskon_rupiah,
                     'harga_total' => $harga_total,
                     'subtotal' =>  $subtotal,
-                    'kode_user' => $user
+                    'kode_user' => $user->kode
                 ]
             );
 
@@ -291,7 +291,7 @@ class PenerimaanController extends Controller
                             'harga_total' => $value['harga_total'],
                             'subtotal' => $value['subtotal'],
                             'tgl_exprd' => $value['tgl_exprd'],
-                            'kode_user' => $user,
+                            'kode_user' => $user->kode,
                         ]
                     );
                 }
