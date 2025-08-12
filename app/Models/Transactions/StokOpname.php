@@ -7,7 +7,7 @@ use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Stok extends Model
+class StokOpname extends Model
 {
     use HasFactory, LogsActivity;
     protected $guarded = ['id'];
