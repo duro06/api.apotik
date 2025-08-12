@@ -274,23 +274,25 @@ class PenjualanController extends Controller
     public function hapus(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required',
+            'kode_barang' => 'required',
         ], [
-            'id.required' => 'Tidak Ada Rincian untuk dihapus',
+            'kode_barang.required' => 'Tidak Ada Rincian untuk dihapus',
         ]);
 
         try {
             DB::beginTransaction();
             $msg = 'Data Obat sudah dihapus';
-            $rinci = PenjualanR::find($validated['id']);
-            if (!$rinci) throw new \Exception('Data Obat Tidak Ditemukan.');
-
-            $header = PenjualanH::where('nopenjualan', $rinci->nopenjualan)->first();
+            $rinci = PenjualanR::where($validated['kode_barang'])->get();
+            if (count($rinci) == 0) throw new \Exception('Data Obat Tidak Ditemukan.');
+            $nopenjualan = $rinci->pluck('nopenjualan')->first();
+            $header = PenjualanH::where('nopenjualan', $nopenjualan)->first();
             if ($header->flag !== null) throw new Exception('Data sudah terkunci, tidak boleh dihapus');
 
             // hitung sisa rincian
-            $rinci->delete();
-            $sisaRinci = PenjualanR::where('nopenjualan', $rinci->nopenjualan)->get()->count();
+            foreach ($rinci as $r) {
+                $r->delete();
+            }
+            $sisaRinci = PenjualanR::where('nopenjualan', $nopenjualan)->get()->count();
             if ($sisaRinci == 0) {
                 $header->delete();
                 $msg = 'Data Obat sudah dihapus, Sisa rincian sebanyak 0 data';
