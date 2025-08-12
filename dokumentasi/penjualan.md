@@ -124,8 +124,6 @@ Base URL: `/api/transactions/penjualan`
 
 **POST** `/tambah`
 
-> Tambah atau update transaksi penjualan.
-
 ### Body Parameters
 
 | Field               | Type   | Required | Notes                           |
@@ -147,13 +145,20 @@ Base URL: `/api/transactions/penjualan`
 | tgl_exprd           | date   | ✅       | Tanggal kadaluarsa              |
 | id_stok             | int    | ✅       | ID stok obat                    |
 
-### Response Success (200)
+### Response Created (201)
 
 ```json
 {
-  "message": "Data berhasil disimpan",
-  "data": { ...header penjualan... },
-  "rinci": { ...rincian penjualan... }
+    "message": "Data berhasil disimpan",
+    "data": {
+        "nopenjualan": "TRX0001",
+        "tgl_penjualan": "2024-01-01 14:30:00",
+        "kode_pelanggan": "PLG001",
+        "kode_dokter": "DOK001",
+        "kode_user": "USR001",
+        "cara_bayar": "",
+        "rinci": [...]
+    }
 }
 ```
 
@@ -229,13 +234,11 @@ Base URL: `/api/transactions/penjualan`
 
 **POST** `/hapus`
 
-> Hapus rincian penjualan berdasarkan ID.
-
 ### Body Parameters
 
-| Field | Type | Required | Notes                |
-| ----- | ---- | -------- | -------------------- |
-| id    | int  | ✅       | ID rincian penjualan |
+| Field       | Type   | Required | Notes                    |
+| ----------- | ------ | -------- | ------------------------ |
+| kode_barang | string | ✅       | Kode barang yang dihapus |
 
 ### Response Success (200)
 
