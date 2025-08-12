@@ -28,26 +28,37 @@ class PenjualanController extends Controller
             'per_page' => request('per_page') ?? 10,
         ];
         // ini masih kurang with stok dan barang yang di ambil itu yang hidden nya di master adalah null
-        $data = Stok::select(
-            'nama',
-            'kode',
-            'harga_jual_resep_k',
-            'harga_jual_biasa_k',
-            'id_penerimaan_rinci',
-            'stoks.id as id_stok',
-            'stoks.harga_total as harga_beli',
-            'stoks.satuan_k',
-            'stoks.satuan_b',
-            'stoks.isi',
-            'stoks.nobatch',
-            'stoks.tgl_exprd',
+        // $data = Stok::select(
+        //     'nama',
+        //     'kode',
+        //     'harga_jual_resep_k',
+        //     'harga_jual_biasa_k',
+        //     'id_penerimaan_rinci',
+        //     'stoks.id as id_stok',
+        //     'stoks.harga_total as harga_beli',
+        //     'stoks.satuan_k',
+        //     'stoks.satuan_b',
+        //     'stoks.isi',
+        //     'stoks.nobatch',
+        //     'stoks.tgl_exprd',
 
-        )
-            ->leftJoin('barangs', 'stoks.kode_barang', '=', 'barangs.kode')
-            ->when(request('q'), function ($q) {
-                $q->where('nama', 'like', '%' . request('q') . '%')
-                    ->orWhere('kode', 'like', '%' . request('q') . '%');
-            })
+        // )
+        //     ->leftJoin('barangs', 'stoks.kode_barang', '=', 'barangs.kode')
+        //     ->when(request('q'), function ($q) {
+        //         $q->where('nama', 'like', '%' . request('q') . '%')
+        //             ->orWhere('kode', 'like', '%' . request('q') . '%');
+        //     })
+        //     ->orderBy($req['order_by'], $req['sort'])
+        //     ->limit($req['per_page'])->get();
+        $data = Barang::when(request('q'), function ($q) {
+            $q->where('nama', 'like', '%' . request('q') . '%')
+                ->orWhere('kode', 'like', '%' . request('q') . '%');
+        })
+            ->with([
+                'stok' => function ($q) {
+                    $q->where('jumlah_k', '>', 0);
+                }
+            ])
             ->orderBy($req['order_by'], $req['sort'])
             ->limit($req['per_page'])->get();
 
