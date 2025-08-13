@@ -122,7 +122,7 @@ Base URL: `/api/transactions/penjualan`
 
 ## 📌 Simpan Penjualan
 
-**POST** `/tambah`
+**POST** `/simpan`
 
 ### Body Parameters
 

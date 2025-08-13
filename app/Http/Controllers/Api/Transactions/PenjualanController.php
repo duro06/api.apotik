@@ -73,15 +73,18 @@ class PenjualanController extends Controller
             'sort' => request('sort') ?? 'asc',
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
-            'from' => request('from') ?? Carbon::now()->format('Y-m-d'),
-            'to' => request('to') ?? Carbon::now()->format('Y-m-d'),
+            'from' => request('from') ?? null,
+            'to' => request('to') ?? null,
         ];
 
         $raw = PenjualanH::query();
         $raw->when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
-        })->whereBetween('tgl_penjualan', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59'])
+        })
+            ->when($req['from'], function ($q) use ($req) {
+                $q->whereBetween('tgl_penjualan', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59']);
+            })
             ->with([
                 'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
             ])

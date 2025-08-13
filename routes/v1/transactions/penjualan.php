@@ -16,7 +16,7 @@ Route::group([
     Route::get('/get-list', [PenjualanController::class, 'index']);
 
     // tambah barang
-    Route::post('/tambah', [PenjualanController::class, 'simpan']);
+    Route::post('/simpan', [PenjualanController::class, 'simpan']);
     Route::post('/bayar', [PenjualanController::class, 'bayar']);
 
     // hapus rincian data
