@@ -88,7 +88,7 @@ class PenjualanController extends Controller
             ->with([
                 'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
             ])
-            ->orderBy($req['order_by'], $req['sort'])->orderBy($req['order_by'], $req['sort']);
+            ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
 
