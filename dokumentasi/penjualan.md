@@ -236,9 +236,10 @@ Base URL: `/api/transactions/penjualan`
 
 ### Body Parameters
 
-| Field       | Type   | Required | Notes                    |
-| ----------- | ------ | -------- | ------------------------ |
-| kode_barang | string | ✅       | Kode barang yang dihapus |
+| Field       | Type   | Required | Notes                                  |
+| ----------- | ------ | -------- | -------------------------------------- |
+| nopenjualan | string | ✅       | Nomor transaksi penjualan yang dihapus |
+| kode_barang | string | ✅       | Kode barang yang dihapus               |
 
 ### Response Success (200)
 

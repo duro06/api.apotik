@@ -248,6 +248,11 @@ class PenjualanController extends Controller
             $rincian = PenjualanR::where('nopenjualan', $data->nopenjualan)->get();
             foreach ($rincian as $rinci) {
                 $stok = Stok::find($rinci->id_stok);
+                // validasi sisa stok agar tidak minus
+                if ((int)$stok->jumlah_k < (int)$rinci->jumlah_k) {
+                    $nama = Barang::where('kode', $rinci->kode_barang)->first();
+                    throw new Exception('Stok ' . $nama->nama . ' tgl expired ' . $stok->tgl_exprd . ' kurang, sisa stok sejumlah ' . (int)$stok->jumlah_k);
+                }
                 $jumlah = (int)$stok->jumlah_k - (int)$rinci->jumlah_k;
                 $stok->update([
                     'jumlah_k' => $jumlah,
@@ -278,16 +283,18 @@ class PenjualanController extends Controller
     {
         $validated = $request->validate([
             'kode_barang' => 'required',
+            'nopenjualan' => 'required',
         ], [
             'kode_barang.required' => 'Tidak Ada Rincian untuk dihapus',
+            'nopenjualan.required' => 'Nomor Transaksi Harus di isi',
         ]);
 
         try {
             DB::beginTransaction();
             $msg = 'Data Obat sudah dihapus';
-            $rinci = PenjualanR::where($validated['kode_barang'])->get();
+            $rinci = PenjualanR::where('nopenjualan', $validated['nopenjualan'])->where('kode_barang', $validated['kode_barang'])->get();
             if (count($rinci) == 0) throw new \Exception('Data Obat Tidak Ditemukan.');
-            $nopenjualan = $rinci->pluck('nopenjualan')->first();
+            $nopenjualan = $validated['nopenjualan'];
             $header = PenjualanH::where('nopenjualan', $nopenjualan)->first();
             if ($header->flag !== null) throw new Exception('Data sudah terkunci, tidak boleh dihapus');
 
