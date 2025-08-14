@@ -27,29 +27,7 @@ class PenjualanController extends Controller
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
         ];
-        // ini masih kurang with stok dan barang yang di ambil itu yang hidden nya di master adalah null
-        // $data = Stok::select(
-        //     'nama',
-        //     'kode',
-        //     'harga_jual_resep_k',
-        //     'harga_jual_biasa_k',
-        //     'id_penerimaan_rinci',
-        //     'stoks.id as id_stok',
-        //     'stoks.harga_total as harga_beli',
-        //     'stoks.satuan_k',
-        //     'stoks.satuan_b',
-        //     'stoks.isi',
-        //     'stoks.nobatch',
-        //     'stoks.tgl_exprd',
-
-        // )
-        //     ->leftJoin('barangs', 'stoks.kode_barang', '=', 'barangs.kode')
-        //     ->when(request('q'), function ($q) {
-        //         $q->where('nama', 'like', '%' . request('q') . '%')
-        //             ->orWhere('kode', 'like', '%' . request('q') . '%');
-        //     })
-        //     ->orderBy($req['order_by'], $req['sort'])
-        //     ->limit($req['per_page'])->get();
+        // tambah penjualan yang belum selesai -- ibarat alokasi... maping di front
         $data = Barang::when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
                 ->orWhere('kode', 'like', '%' . request('q') . '%');
@@ -57,6 +35,15 @@ class PenjualanController extends Controller
             ->with([
                 'stok' => function ($q) {
                     $q->where('jumlah_k', '>', 0);
+                },
+                'penjualanRinci' => function ($q) {
+                    $q->select(
+                        'kode_barang',
+                        'jumlah_k',
+                        'id_stok',
+                    )
+                        ->leftJoin('penjualan_h_s', 'penjualan_h_s.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
+                        ->whereNull('penjualan_h_s.flag');
                 }
             ])
             ->orderBy($req['order_by'], $req['sort'])
@@ -291,21 +278,22 @@ class PenjualanController extends Controller
 
         try {
             DB::beginTransaction();
-            $msg = 'Data Obat sudah dihapus';
+            $msg = 'Rincian Obat sudah dihapus';
             $rinci = PenjualanR::where('nopenjualan', $validated['nopenjualan'])->where('kode_barang', $validated['kode_barang'])->get();
             if (count($rinci) == 0) throw new \Exception('Data Obat Tidak Ditemukan.');
             $nopenjualan = $validated['nopenjualan'];
             $header = PenjualanH::where('nopenjualan', $nopenjualan)->first();
+            if (!$header) throw new \Exception('Data header tidak ditemukan.');
             if ($header->flag !== null) throw new Exception('Data sudah terkunci, tidak boleh dihapus');
 
             // hitung sisa rincian
             foreach ($rinci as $r) {
                 $r->delete();
             }
-            $sisaRinci = PenjualanR::where('nopenjualan', $nopenjualan)->get()->count();
+            $sisaRinci = PenjualanR::where('nopenjualan', $nopenjualan)->count();
             if ($sisaRinci == 0) {
                 $header->delete();
-                $msg = 'Data Obat sudah dihapus, Sisa rincian sebanyak 0 data';
+                $msg = 'Semua rincian dihapus, data header juga dihapus';
             }
             DB::commit();
             return new JsonResponse([
@@ -317,7 +305,6 @@ class PenjualanController extends Controller
                 'message' =>  $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'user' => Auth::user(),
                 'trace' => $e->getTrace(),
 
             ], 410);

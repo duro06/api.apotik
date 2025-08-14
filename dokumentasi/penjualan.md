@@ -8,17 +8,57 @@ Base URL: `/api/transactions/penjualan`
 
 **GET** `/get-list-obat`
 
-> Mengambil daftar obat dengan stok untuk penjualan.
+## Deskripsi
 
-### Query Parameters
+Fungsi `getListObat` digunakan untuk mengambil daftar obat dari tabel `Barang` dengan fitur pencarian (`search`), pengurutan (`sorting`), dan paginasi manual.  
+Data yang diambil juga memuat informasi stok yang tersedia (`stok`) dan rincian penjualan yang belum selesai (`penjualanRinci`).
 
-| Parameter | Type   | Required | Default | Notes                                 |
-| --------- | ------ | -------- | ------- | ------------------------------------- |
-| q         | string | ❌       | -       | Kata kunci pencarian (`nama`, `kode`) |
-| order_by  | string | ❌       | `nama`  | Kolom untuk sorting                   |
-| sort      | string | ❌       | `asc`   | Arah sorting: `asc` atau `desc`       |
-| per_page  | int    | ❌       | 10      | Jumlah item per halaman               |
-| page      | int    | ❌       | 1       | Halaman yang diambil                  |
+## Parameter Request
+
+Fungsi ini membaca parameter dari query string request HTTP.
+
+| Parameter  | Tipe    | Default | Deskripsi                                                  |
+| ---------- | ------- | ------- | ---------------------------------------------------------- |
+| `order_by` | string  | `nama`  | Kolom yang digunakan untuk pengurutan data.                |
+| `sort`     | string  | `asc`   | Arah pengurutan (`asc` atau `desc`).                       |
+| `page`     | integer | `1`     | Nomor halaman (tidak digunakan di query, hanya disiapkan). |
+| `per_page` | integer | `10`    | Jumlah data yang diambil.                                  |
+| `q`        | string  | _null_  | Kata kunci pencarian pada kolom `nama` atau `kode`.        |
+
+## Alur Kerja
+
+1. **Ambil Parameter Request**
+    - Parameter `order_by`, `sort`, `page`, dan `per_page` diambil dari request, dengan nilai default jika tidak diberikan.
+2. **Query Data Barang**
+
+    - Mengambil data dari model `Barang`.
+    - Jika parameter `q` ada, maka dilakukan filter:
+        ```php
+        where('nama', 'like', "%q%")
+        orWhere('kode', 'like', "%q%")
+        ```
+
+3. **Relasi Data**
+
+    - **Relasi `stok`**:
+        - Hanya stok dengan `jumlah_k > 0` yang diambil.
+    - **Relasi `penjualanRinci`**:
+        - Mengambil `kode_barang`, `jumlah_k`, `id_stok` dari tabel `penjualan_r_s`.
+        - Melakukan `LEFT JOIN` dengan `penjualan_h_s` berdasarkan `nopenjualan`.
+        - Hanya mengambil data yang `penjualan_h_s.flag` bernilai `NULL` (penjualan belum selesai).
+
+4. **Pengurutan & Batas Data**
+
+    - Data diurutkan sesuai parameter `order_by` dan `sort`.
+    - Data dibatasi sesuai parameter `per_page`.
+
+5. **Response**
+    - Mengembalikan data dalam format JSON:
+        ```json
+        {
+          "data": [ ... ]
+        }
+        ```
 
 ### Response Success (200)
 
@@ -37,7 +77,19 @@ Base URL: `/api/transactions/penjualan`
             "satuan_b": "Box",
             "isi": 10,
             "nobatch": "B001",
-            "tgl_exprd": "2025-01-01"
+            "tgl_exprd": "2025-01-01",
+            "stok": [
+                {
+                    "jumlah_k": 20
+                }
+            ],
+            "penjualan_rinci": [
+                {
+                    "kode_barang": "OBT001",
+                    "jumlah_k": 2,
+                    "id_stok": 123
+                }
+            ]
         }
     ]
 }
