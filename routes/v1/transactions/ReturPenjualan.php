@@ -9,6 +9,9 @@ Route::group([
     'middleware' => 'auth:sanctum',
     'prefix' => 'transactions/returpenjualan'
 ], function () {
+    // cari penjualan
+    Route::get('/get-penjualan', [ReturPenjualanController::class, 'getTransaksiPenjualan']);
+
     // List Retur Penjualan
     Route::get('/get-list', [ReturPenjualanController::class, 'index']);
 
@@ -17,8 +20,8 @@ Route::group([
 
     // Lock And Unlock
     Route::post('/lock-retur-penjualan', [ReturPenjualanController::class, 'lock_retur_penjualan']);
-    Route::post('/unlock-retur-penjualan', [ReturPenjualanController::class, 'open_lock_retur_penjualan']);    
-    
+    // Route::post('/unlock-retur-penjualan', [ReturPenjualanController::class, 'open_lock_retur_penjualan']);
+
     // Hapus Retur Penjualan
     Route::post('/delete', [ReturPenjualanController::class, 'hapus']);
     Route::post('/delete-rinci', [ReturPenjualanController::class, 'hapus_rincian_tidak_dikunci']);

@@ -14,7 +14,7 @@ class ReturPenjualan_r extends Model
     use HasFactory, LogsActivity;
     protected $guarded = ['id'];
 
-    public function master_barang()
+    public function master()
     {
         return $this->belongsTo(Barang::class, 'kode_barang', 'kode');
     }
@@ -27,7 +27,5 @@ class ReturPenjualan_r extends Model
     public function penerimaan_r()
     {
         return $this->belongsTo(Penerimaan_r::class, 'nobatch', 'nobatch');
-
     }
-
 }

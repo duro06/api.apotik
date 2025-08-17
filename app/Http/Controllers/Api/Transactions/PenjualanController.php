@@ -39,11 +39,12 @@ class PenjualanController extends Controller
                 'penjualanRinci' => function ($q) {
                     $q->select(
                         'kode_barang',
-                        'jumlah_k',
+                        DB::raw('sum(jumlah_k) as jumlah_k'),
                         'id_stok',
                     )
                         ->leftJoin('penjualan_h_s', 'penjualan_h_s.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
-                        ->whereNull('penjualan_h_s.flag');
+                        ->whereNull('penjualan_h_s.flag')
+                        ->groupBy('kode_barang', 'id_stok');
                 }
             ])
             ->orderBy($req['order_by'], $req['sort'])
