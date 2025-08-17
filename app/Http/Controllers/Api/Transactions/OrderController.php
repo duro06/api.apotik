@@ -46,14 +46,14 @@ class OrderController extends Controller
                     $query->where('nomor_order', 'like', '%' . request('q') . '%')
                         ->orWhere('kode_user', 'like', '%' . request('q') . '%')
                         ->orWhere('suppliers.nama', 'LIKE', '%' . request('q') . '%');
-
                 });
             })
             ->when(isset($req['flag']), function ($q) use ($req) {
                 if ($req['flag'] === 'null' || $req['flag'] === null || $req['flag'] === '') {
                     $q->whereNull('order_headers.flag');
                 } else if (is_numeric($req['flag'])) {
-                    $q->where('order_headers.flag', (int) $req['flag']);
+                    $q->where('order_headers.flag', (int) $req['flag'])
+                        ->whereNull('status_penerimaan');
                 }
             })
             ->when($req['from'] || $req['to'], function ($q) use ($req) {
@@ -226,10 +226,10 @@ class OrderController extends Controller
                     'nomor_order' => $validated['nomor_order'],
                 ]
             )->update(
-                    [
-                        'flag' => '1', // Lock Table
-                    ]
-                );
+                [
+                    'flag' => '1', // Lock Table
+                ]
+            );
             if (!$orderHeader) {
                 throw new \Exception('Transaksi Gagal Disimpan.');
             }
@@ -239,10 +239,10 @@ class OrderController extends Controller
                     'nomor_order' => $validated['nomor_order'],
                 ],
             )->update(
-                    [
-                        'flag' => '1'
-                    ]
-                );
+                [
+                    'flag' => '1'
+                ]
+            );
 
             if (!$record) {
                 throw new \Exception('Gagal menyimpan Rincian.');
@@ -325,10 +325,10 @@ class OrderController extends Controller
                     'nomor_order' => $validated['nomor_order'],
                 ]
             )->update(
-                    [
-                        'flag' => null, // Lock Table
-                    ]
-                );
+                [
+                    'flag' => null, // Lock Table
+                ]
+            );
             if (!$orderHeader) {
                 throw new \Exception('Transaksi Gagal Disimpan.');
             }
@@ -338,10 +338,10 @@ class OrderController extends Controller
                     'nomor_order' => $validated['nomor_order'],
                 ]
             )->update(
-                    [
-                        'flag' => null
-                    ]
-                );
+                [
+                    'flag' => null
+                ]
+            );
 
             if (!$record) {
                 throw new \Exception('Gagal menyimpan Rincian.');
