@@ -117,6 +117,7 @@ class ReturPembelianController extends Controller
             'jenispajak.required' => 'Jenis Pajak Harus Di isi.',
             'jumlahretur_b.required' => 'Jumlah Retur Harus Di isi.',
         ]);
+
         try{
             DB::beginTransaction();
                 if($request->flag === '1'){
