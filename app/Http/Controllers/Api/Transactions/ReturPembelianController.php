@@ -193,7 +193,7 @@ class ReturPembelianController extends Controller
                         'satuan_k' => $validated['satuan_k'],
                         'jumlah_b' => $validated['jumlah_b'],
                         'jumlah_k' => $validated['jumlah_k'],
-                        'harga_b' => $validated['harga'],
+                        'harga_b' => $validated['harga_b'],
                         'harga' => $validated['harga'],
                         'pajak_rupiah' => $request->pajak_rupiah,
                         'diskon_persen' => $validated['diskon_persen'],
