@@ -87,7 +87,7 @@ class ReturPembelianController extends Controller
             'satuan_b' => 'required',
             'jumlah_b' => 'required',
             'jumlah_k' => 'required',
-            'harga' => 'required',
+            'harga_b' => 'required',
             'pajak_rupiah' => 'nullable',
             'diskon_persen' => 'nullable',
             'diskon_rupiah' => 'nullable',
@@ -95,7 +95,7 @@ class ReturPembelianController extends Controller
             'harga_total' => 'required',
             'subtotal' => 'required',
             'jenispajak' => 'required',
-
+            'jumlahretur_b' => 'required',
 
 
         ], [
@@ -113,14 +113,14 @@ class ReturPembelianController extends Controller
             'satuan_b.required' => 'Satuan Besar Harus Di isi.',
             'jumlah_b.required' => 'Jumlah Satuan Besar Harus Di isi.',
             'jumlah_k.required' => 'Jumlah Satuan Kecil Harus Di isi.',
-            'harga.required' => 'Harga Harus Di isi.',
+            'harga_b.required' => 'Harga Harus Di isi.',
             'jenispajak.required' => 'Jenis Pajak Harus Di isi.',
-
+            'jumlahretur_b.required' => 'Jumlah Retur Harus Di isi.',
         ]);
         try{
             DB::beginTransaction();
                 if($request->flag === '1'){
-                    $jumlahretur_k = (int) $request->jumlah_k * (int) $request->isi;
+                    $jumlahretur_k = (int) $validated['jumlahretur_b'] / (int) $request->isi;
                     $cekstok = Stok::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
                     $stoksekarang = $cekstok->jumlah_k;
                     $sisastok_k = $stoksekarang - $jumlahretur_k;
@@ -170,16 +170,16 @@ class ReturPembelianController extends Controller
                     throw new \Exception('Gagal menyimpan Header Retur.');
                 }
 
-                $pajak_rupiah = 0;
-                $diskon_rupiah = 0;
+                $diskonretur_rupiah = 0;
+                $pajakretur_rupiah = 0;
                 if($validated['jenispajak'] === 'Exclude'){
-                    $pajak_rupiah = $validated['harga'] * ($validated['pajak'] / 100);
+                    $pajakretur_rupiah = $validated['harga_b'] * ($validated['pajak'] / 100);
                 }
                 if (isset($validated['diskon_persen'])) {
-                    $diskon_rupiah = $validated['harga'] * ($validated['diskon_persen'] / 100);
+                    $diskonretur_rupiah = $validated['harga_b'] * ($validated['diskon_persen'] / 100);
                 }
-                $harga_total = $validated['harga'] + $pajak_rupiah - $diskon_rupiah;
-                $subtotal = $harga_total * $validated['jumlah_b'];
+                $hargaretur_total = $validated['harga_b'] + $pajakretur_rupiah - $diskonretur_rupiah;
+                $subtotalretur = $hargaretur_total * $validated['jumlahretur_b'];
                 $returrinci = ReturPembelian_r::updateOrCreate(
                     [
                         'noretur' => $noretur,
@@ -193,13 +193,20 @@ class ReturPembelianController extends Controller
                         'satuan_k' => $validated['satuan_k'],
                         'jumlah_b' => $validated['jumlah_b'],
                         'jumlah_k' => $validated['jumlah_k'],
+                        'harga_b' => $validated['harga'],
                         'harga' => $validated['harga'],
-                        'pajak_rupiah' => $pajak_rupiah,
+                        'pajak_rupiah' => $request->pajak_rupiah,
                         'diskon_persen' => $validated['diskon_persen'],
-                        'diskon_rupiah' => $diskon_rupiah,
-                        'harga_total' => $harga_total,
-                        'subtotal' => $subtotal,
+                        'diskon_rupiah' => $request->diskon_rupiah,
+                        'harga_total' => $request->harga_total,
+                        'subtotal' => $request->subtotal,
                         'tgl_exprd' => $validated['tgl_exprd'],
+                        'jumlahretur_b' => $validated['jumlahretur_b'],
+                        'jumlahretur_k' => $jumlahretur_k,
+                        'diskonretur_rupiah' => $diskonretur_rupiah,
+                        'pajakretur_rupiah' => $pajakretur_rupiah,
+                        'hargaretur_total' => $hargaretur_total,
+                        'subtotalretur' => $subtotalretur,
                         'kode_user' => $user->kode,
                     ]
                 );
