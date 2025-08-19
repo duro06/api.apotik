@@ -12,7 +12,7 @@ Route::group([
 
     Route::get('/get-pembelian', [ReturPembelianController::class, 'getpenerimaan']);
     Route::get('/get-list', [ReturPembelianController::class, 'index']);
-    // Route::post('/simpan', [ReturPembelianController::class, 'simpan']);
+    Route::post('/simpan', [ReturPembelianController::class, 'simpan']);
     // Route::post('/lock-retur-penjualan', [ReturPembelianController::class, 'lock_retur_penjualan']);
     // Route::post('/delete', [ReturPembelianController::class, 'hapus']);
     // Route::post('/delete-rinci', [ReturPembelianController::class, 'hapus_rincian_tidak_dikunci']);
