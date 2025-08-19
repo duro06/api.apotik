@@ -136,7 +136,7 @@ class ReturPembelianController extends Controller
 
                 }
 
-                if (!$validated['nopenerimaan']) {
+                if (!$validated['noretur']) {
                     DB::select('call noretur_penjualan(@nomor)');
                     $nomor = DB::table('counter')->select('noretur_penjualan')->first();
 
