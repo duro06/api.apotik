@@ -137,7 +137,7 @@ class ReturPembelianController extends Controller
 
                 if (!$validated['nopenerimaan']) {
                     DB::select('call noretur_penjualan(@nomor)');
-                    $nomor = DB::table('counter')->select('nopenerimaan')->first();
+                    $nomor = DB::table('counter')->select('noretur_penjualan')->first();
 
                     $noretur = FormatingHelper::notrans($nomor->noretur, 'RB');
                 } else {
