@@ -89,6 +89,7 @@ class ReturPembelianController extends Controller
             'jumlah_k' => 'required',
             'harga_b' => 'required',
             'pajak_rupiah' => 'nullable',
+            'pajak' => 'nullable',
             'diskon_persen' => 'nullable',
             'diskon_rupiah' => 'nullable',
             'tgl_exprd' => 'required',
