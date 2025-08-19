@@ -66,7 +66,9 @@ class ReturPembelianController extends Controller
                 'suplier',
             ])
            ->get();
-        return new JsonResponse($query);
+        return new JsonResponse([
+            'data' => $query
+        ],200);
     }
 
     public function simpan(Request $request)

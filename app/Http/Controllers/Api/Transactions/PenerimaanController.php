@@ -67,7 +67,7 @@ class PenerimaanController extends Controller
             'jumlah_b' => 'required',
             'jumlah_k' => 'required',
             'harga_b' => 'required',
-            'harga' => 'required',
+            // 'harga' => 'required',
             'diskon_persen' => 'nullable',
             'isi' => 'required',
             'satuan_k' => 'required',
@@ -89,7 +89,7 @@ class PenerimaanController extends Controller
             'jumlah_b.required' => 'Jumlah Satuan Besar Harus Di isi.',
             'jumlah_k.required' => 'Jumlah Satuan Kecil Harus Di isi.',
             'harga_b.required' => 'Harga Satuan Besar Harus Di isi.',
-            'harga.required' => 'Harga Harus Di isi.',
+            // 'harga.required' => 'Harga Harus Di isi.',
             'satuan_k.required' => 'Satuan Kecil Harus Di isi.',
             'satuan_b.required' => 'Satuan Besar Harus Di isi.',
         ]);
@@ -140,13 +140,14 @@ class PenerimaanController extends Controller
             // Buat penerimaan records untuk setiap item
             $pajak_rupiah = 0;
             $diskon_rupiah = 0;
+            $harga_k = $validated['harga_b'] / $validated['isi'];
             if($validated['jenispajak'] === 'Exclude'){
-                $pajak_rupiah = $validated['harga'] * ($validated['pajak'] / 100);
+                $pajak_rupiah = $harga_k * ($validated['pajak'] / 100);
             }
             if (isset($validated['diskon_persen'])) {
-                $diskon_rupiah = $validated['harga'] * ($validated['diskon_persen'] / 100);
+                $diskon_rupiah = $harga_k * ($validated['diskon_persen'] / 100);
             }
-            $harga_k = $validated['harga'] / $validated['isi'];
+
             $harga_total = $harga_k + $pajak_rupiah - $diskon_rupiah;
             $subtotal = $harga_total * $validated['jumlah_k'];
             $penerimaanrinci = Penerimaan_r::create(
@@ -161,7 +162,7 @@ class PenerimaanController extends Controller
                     'satuan_k' => $validated['satuan_k'],
                     'jumlah_b' => $validated['jumlah_b'],
                     'jumlah_k' => $validated['jumlah_k'],
-                    'harga_b' => $validated['harga'],
+                    'harga_b' => $validated['harga_b'],
                     'harga' => $harga_k,
                     'pajak_rupiah' => $pajak_rupiah,
                     'diskon_persen' => $validated['diskon_persen'],
