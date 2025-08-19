@@ -88,6 +88,7 @@ class ReturPembelianController extends Controller
             'jumlah_b' => 'required',
             'jumlah_k' => 'required',
             'harga_b' => 'required',
+            'harga' => 'required',
             'pajak_rupiah' => 'nullable',
             'pajak' => 'nullable',
             'diskon_persen' => 'nullable',
@@ -117,6 +118,7 @@ class ReturPembelianController extends Controller
             'harga_b.required' => 'Harga Harus Di isi.',
             'jenispajak.required' => 'Jenis Pajak Harus Di isi.',
             'jumlahretur_b.required' => 'Jumlah Retur Harus Di isi.',
+            'harga.required' => 'Harga Harus Di isi.',
         ]);
 
         try{
