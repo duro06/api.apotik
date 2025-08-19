@@ -145,7 +145,7 @@ class ReturPembelianController extends Controller
                     $noretur = $request->noretur;
 
                     // Cek apakah order sudah ada dan sudah terkunci
-                    $existingHeader = Penerimaan_h::where('noretur', $noretur)->first();
+                    $existingHeader = ReturPembelian_h::where('noretur', $noretur)->first();
                     if ($existingHeader && $existingHeader->flag == '1') {
                         return new JsonResponse([
                             'success' => false,
