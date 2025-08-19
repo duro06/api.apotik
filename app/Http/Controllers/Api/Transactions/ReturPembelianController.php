@@ -123,6 +123,10 @@ class ReturPembelianController extends Controller
 
         try{
             DB::beginTransaction();
+                $jumlahretur_k = 0;
+                $cekstok = 0;
+                $stoksekarang = 0;
+                $sisastok_k = 0;
                 if($request->flag === '1'){
                     $jumlahretur_k = (int) $validated['jumlahretur_b'] / (int) $request->isi;
                     $cekstok = Stok::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
