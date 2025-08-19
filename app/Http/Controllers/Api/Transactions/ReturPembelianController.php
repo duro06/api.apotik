@@ -121,14 +121,15 @@ class ReturPembelianController extends Controller
             'harga.required' => 'Harga Harus Di isi.',
         ]);
 
+
         try{
             DB::beginTransaction();
                 $jumlahretur_k = 0;
                 $cekstok = 0;
                 $stoksekarang = 0;
                 $sisastok_k = 0;
+                $jumlahretur_k = (int) $validated['jumlahretur_b'] * (int) $validated['isi'];
                 if($request->flag === '1'){
-                    $jumlahretur_k = (int) $validated['jumlahretur_b'] / (int) $request->isi;
                     $cekstok = Stok::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
                     $stoksekarang = $cekstok->jumlah_k;
                     $sisastok_k = $stoksekarang - $jumlahretur_k;
@@ -178,13 +179,15 @@ class ReturPembelianController extends Controller
                     throw new \Exception('Gagal menyimpan Header Retur.');
                 }
 
-                $diskonretur_rupiah = 0;
-                $pajakretur_rupiah = 0;
                 if($validated['jenispajak'] === 'Exclude'){
-                    $pajakretur_rupiah = $validated['harga_b'] * ($validated['pajak'] / 100);
+                    $pajakretur_rupiah = (int) $validated['harga_b'] * ($validated['pajak'] / 100);
+                }else{
+                    $pajakretur_rupiah = 0;
                 }
                 if (isset($validated['diskon_persen'])) {
-                    $diskonretur_rupiah = $validated['harga_b'] * ($validated['diskon_persen'] / 100);
+                    $diskonretur_rupiah = (int) $validated['harga_b'] * ($validated['diskon_persen'] / 100);
+                }else{
+                    $diskonretur_rupiah = 0;
                 }
                 $hargaretur_total = $validated['harga_b'] + $pajakretur_rupiah - $diskonretur_rupiah;
                 $subtotalretur = $hargaretur_total * $validated['jumlahretur_b'];
