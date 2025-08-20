@@ -200,9 +200,7 @@ class ReturPenjualanController extends Controller
                     'id_penerimaan_rinci' => $validated['id_penerimaan_rinci'],
                     'nopenerimaan' => $validated['nopenerimaan'],
                     'id_stok' => $validated['id_stok'],
-                    'kode_user' => $user->kode,
-                    'returpenjualan_h_id' => $ReturPenjualanHeader->id,
-                    'returpenjualan_h_noretur' => $ReturPenjualanHeader->noretur,
+                    'kode_user' => $user->kode
                 ]
             );
 

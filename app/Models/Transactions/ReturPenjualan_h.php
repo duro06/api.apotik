@@ -15,17 +15,11 @@ class ReturPenjualan_h extends Model
 
     public function returPenjualan_r()
     {
-        return $this->hasMany(ReturPenjualan_r::class, 'returpenjualan_h_id', 'id');
+        return $this->hasMany(ReturPenjualan_r::class, 'noretur', 'noretur');
     }
 
     public function penerimaan_h()
     {
         return $this->belongsTo(Penerimaan_h::class, 'nopenerimaan', 'nopenerimaan');
     }
-
-    public function supplier()
-    {
-        return $this->belongsTo(Supplier::class, 'kode_suplier', 'kode');
-    }
-
 }

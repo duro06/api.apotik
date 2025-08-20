@@ -26,6 +26,6 @@ class ReturPenjualan_r extends Model
 
     public function penerimaan_r()
     {
-        return $this->belongsTo(Penerimaan_r::class, 'nobatch', 'nobatch');
+        return $this->belongsTo(Penerimaan_r::class, 'id_penerimaan_rinci', 'id');
     }
 }

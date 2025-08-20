@@ -5,8 +5,10 @@ namespace App\Models\Master;
 use App\Models\Transactions\Penerimaan_r;
 use App\Models\Transactions\PenjualanR;
 use App\Models\Transactions\Penyesuaian;
+use App\Models\Transactions\ReturPembelian_r;
 use App\Models\Transactions\ReturPenjualan_r;
 use App\Models\Transactions\Stok;
+use App\Models\Transactions\StokOpname;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,5 +38,17 @@ class Barang extends Model
     public function stok()
     {
         return $this->hasMany(Stok::class, 'kode_barang', 'kode');
+    }
+    public function stokOpname()
+    {
+        return $this->hasMany(StokOpname::class, 'kode_barang', 'kode');
+    }
+    public function stokAwal()
+    {
+        return $this->hasMany(StokOpname::class, 'kode_barang', 'kode');
+    }
+    public function ReturPembelianRinci()
+    {
+        return $this->hasMany(ReturPembelian_r::class, 'kode_barang', 'kode');
     }
 }
