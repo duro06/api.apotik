@@ -104,10 +104,10 @@ class ReturPenjualanController extends Controller
             ->with([
                 'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
             ])
-            ->first();
-        if ($data) {
+            ->get();
+        if (count($data)) {
             // cek rincian retur
-            $rincianret = ReturPenjualan_r::where('nopenjualan', $data->nopenjualan)->get();
+            $rincianret = ReturPenjualan_r::where('nopenjualan', $data[0]->nopenjualan)->get();
             if (count($rincianret) > 0) return new JsonResponse(['message' => 'Data retur sudah ada silahkan di cek di list retur'], 410);
         }
         return new JsonResponse([
