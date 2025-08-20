@@ -72,32 +72,47 @@ class ReturPenjualanController extends Controller
             'per_page' => request('per_page', 10),
         ];
 
-        $query = PenjualanH::query()
-            ->when(request('q'), function ($q) {
-                $kode = Barang::select('kode')->where('nama', 'like', '%' . request('q') . '%')->pluck('kode');
-                $q->where(function ($query) use ($kode) {
-                    $query->where('penjualan_h_s.nopenjualan', 'like', '%' . request('q') . '%')
-                        ->when(count($kode) > 0, function ($q) use ($kode) {
-                            $rinci = PenjualanR::select('penjualan_r_s.nopenjualan')
-                                ->distinct()
-                                ->leftJoin('penjualan_h_s', 'penjualan_h_s.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
-                                ->whereIn('kode_barang', $kode)
-                                ->where('flag', '1')
-                                ->pluck('nopenjualan');
-                            $q->orWhereIn('nopenjualan', $rinci);
-                        });
-                });
-            })
+        // $query = PenjualanH::query()
+        //     ->when(request('q'), function ($q) {
+        //         $q->where('penjualan_h_s.nopenjualan', '=',  request('q'));
+        //         // $kode = Barang::select('kode')->where('nama', 'like', '%' . request('q') . '%')->pluck('kode');
+        //         // $q->where(function ($query) use ($kode) {
+        //         //     $query->where('penjualan_h_s.nopenjualan', 'like', '%' . request('q') . '%');
+        //         // ->when(count($kode) > 0, function ($q) use ($kode) {
+        //         //     $rinci = PenjualanR::select('penjualan_r_s.nopenjualan')
+        //         //         ->distinct()
+        //         //         ->leftJoin('penjualan_h_s', 'penjualan_h_s.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
+        //         //         ->whereIn('kode_barang', $kode)
+        //         //         ->where('flag', '1')
+        //         //         ->pluck('nopenjualan');
+        //         //     $q->orWhereIn('nopenjualan', $rinci);
+        //         // });
+        //         // });
+        //     })
+        //     ->with([
+        //         'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
+        //     ])
+        //     ->orderBy('penjualan_h_s.' . $req['order_by'], $req['sort']);
+
+        // $totalCount = (clone $query)->count();
+        // $data = $query->simplePaginate($req['per_page']);
+
+        // $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
+        // return new JsonResponse($resp);
+
+        $data = PenjualanH::where('nopenjualan', request('q'))
             ->with([
                 'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
             ])
-            ->orderBy('penjualan_h_s.' . $req['order_by'], $req['sort']);
-
-        $totalCount = (clone $query)->count();
-        $data = $query->simplePaginate($req['per_page']);
-
-        $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
-        return new JsonResponse($resp);
+            ->first();
+        if ($data) {
+            // cek rincian retur
+            $rincianret = ReturPenjualan_r::where('nopenjualan', $data->nopenjualan)->get();
+            if (count($rincianret) > 0) return new JsonResponse(['message' => 'Data retur sudah ada silahkan di cek di list retur'], 410);
+        }
+        return new JsonResponse([
+            'data' => $data
+        ]);
     }
     public function simpan(Request $request)
     {
