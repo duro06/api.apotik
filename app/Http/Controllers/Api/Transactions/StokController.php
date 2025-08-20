@@ -20,17 +20,18 @@ class StokController extends Controller
         ];
 
         $query = Stok::query()
-           ->leftjoin('barangs', 'stoks.kode_barang', '=', 'barangs.kode')
+            ->leftjoin('barangs', 'stoks.kode_barang', '=', 'barangs.kode')
             ->when(request('q'), function ($q) {
                 $q->where(function ($query) {
                     $query->where('stoks.nopenerimaan', 'like', '%' . request('q') . '%')
-                            ->orWhere('stoks.noorder', 'like', '%' . request('q') . '%')
-                            ->orWhere('barangs.nama', 'like', '%' . request('q') . '%');
+                        ->orWhere('stoks.noorder', 'like', '%' . request('q') . '%')
+                        ->orWhere('barangs.nama', 'like', '%' . request('q') . '%');
                 });
             })
             ->with([
                 'barang'
             ])
+            ->where('jumlah_k', '>', 0)
             ->select('stoks.*')
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $query)->count();
