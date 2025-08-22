@@ -66,7 +66,7 @@ class PenerimaanController extends Controller
             'tgl_exprd' => 'required',
             'jumlah_b' => 'required',
             'jumlah_k' => 'required',
-            // 'harga_b' => 'required',
+            'harga_b' => 'required',
             // 'harga' => 'required',
             'diskon_persen' => 'nullable',
             'isi' => 'required',
@@ -88,7 +88,7 @@ class PenerimaanController extends Controller
             'isi.required' => 'Isi per Satuan Besar Barang Harus Di isi.',
             'jumlah_b.required' => 'Jumlah Satuan Besar Harus Di isi.',
             'jumlah_k.required' => 'Jumlah Satuan Kecil Harus Di isi.',
-            // 'harga_b.required' => 'Harga Satuan Besar Harus Di isi.',
+            'harga_b.required' => 'Harga Satuan Besar Harus Di isi.',
             // 'harga.required' => 'Harga Harus Di isi.',
             'satuan_k.required' => 'Satuan Kecil Harus Di isi.',
             'satuan_b.required' => 'Satuan Besar Harus Di isi.',
@@ -98,6 +98,17 @@ class PenerimaanController extends Controller
         // if (!$user) {
         //     throw new \Exception('Apakah Anda belum login?', 401);
         // }
+        $cek = Penerimaan_h::leftjoin('penerimaan_rs', 'penerimaan_hs.nopenerimaan', '=', 'penerimaan_rs.nopenerimaan')
+            ->where('penerimaan_hs.noorder', $validated['noorder'])
+            ->where('penerimaan_rs.kode_barang', $validated['kode_barang'])
+            ->count();
+        if ($cek > 0) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Data Barang ini Sudah Masuk Ke penerimaan.'
+            ], 410);
+        }
+
         if (!$validated['nopenerimaan']) {
             DB::select('call nopenerimaan(@nomor)');
             $nomor = DB::table('counter')->select('nopenerimaan')->first();
@@ -140,7 +151,7 @@ class PenerimaanController extends Controller
             // Buat penerimaan records untuk setiap item
             $pajak_rupiah = 0;
             $diskon_rupiah = 0;
-            $harga_k = $validated['harga_b'] / $validated['jumlah_k'];
+            $harga_k = $validated['harga_b'] / $validated['isi'];
             // $harga_k = $request->harga / $validated['jumlah_k'];
             if($validated['jenispajak'] === 'Exclude'){
                 $pajak_rupiah = $harga_k * ($validated['pajak'] / 100);
