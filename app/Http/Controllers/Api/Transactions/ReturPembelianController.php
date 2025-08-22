@@ -273,7 +273,7 @@ class ReturPembelianController extends Controller
 
             return new JsonResponse([
                 'success' => true,
-                'message' => 'Data order berhasil dihapus'
+                'message' => 'Data Retur berhasil dihapus'
             ]);
         }catch (\Exception $e) {
             DB::rollBack();
