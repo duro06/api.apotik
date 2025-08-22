@@ -326,7 +326,7 @@ class ReturPembelianController extends Controller
             DB::commit();
 
             $returData = ReturPembelian_h::with([
-                'returPembelian_r.master:nama,kode,satuan_k,satuan_b,isi,kandungan',
+                'rincian.barang:nama,kode,satuan_k,satuan_b,isi,kandungan',
             ])->find($existingHeader->id);
 
             return new JsonResponse([
