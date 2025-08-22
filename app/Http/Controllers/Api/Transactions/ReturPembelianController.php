@@ -65,6 +65,7 @@ class ReturPembelianController extends Controller
                 },
                 'suplier',
             ])
+           ->where('flag', '1')
            ->get();
         return new JsonResponse([
             'data' => $query
@@ -241,6 +242,103 @@ class ReturPembelianController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'user' => Auth::user(),
+                'trace' => $e->getTrace(),
+
+            ], 410);
+        }
+    }
+
+    public function hapus(Request $request)
+    {
+        $cek = ReturPembelian_h::where('noretur', $request->noretur)->where('flag', '1')->count();
+        if ($cek > 0) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Data ini sudah terkunci.'
+            ], 410);
+        }
+
+        try {
+            DB::beginTransaction();
+            // Hapus order records
+            $cari = ReturPembelian_r::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
+            $stok = Stok::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
+            $stok->update(['jumlah_k' => $stok->jumlah_k + $cari->jumlahretur_k]);
+            ReturPembelian_r::where('id', $request->id)->delete();
+
+            DB::commit();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Data order berhasil dihapus'
+            ]);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 410);
+        }
+    }
+
+    public function lock_retur_pembelian(Request $request)
+    {
+        $validated = $request->validate([
+            'noretur' => 'required',
+        ], [
+            'noretur.required' => 'Nomor Retur harus diisi.',
+        ]);
+
+        $user = Auth::user();
+        if (!$user) {
+            throw new \Exception('Apakah Anda belum login?', 401);
+        }
+
+        $existingHeader = ReturPembelian_h::where('noretur', $validated['noretur'])->first();
+        if (!$existingHeader) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Data Retur Tidak Ditemukan.'
+            ], 410);
+        }
+
+        if ($existingHeader && $existingHeader->flag == '1') {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Data ini sudah terkunci.'
+            ], 410);
+        }
+
+        try {
+            DB::beginTransaction();
+            $returHeader = ReturPembelian_h::where('noretur', $validated['noretur'])->first();
+
+            if (!$returHeader) {
+                throw new \Exception('Gagal mengunci data retur.');
+            }
+
+            // Update header
+            $returHeader->update(['flag' => '1']); // Lock Table
+
+            DB::commit();
+
+            $returData = ReturPembelian_h::with([
+                'returPembelian_r.master:nama,kode,satuan_k,satuan_b,isi,kandungan',
+            ])->find($existingHeader->id);
+
+            return new JsonResponse([
+
+                'data' => $returData,
+                'message' => 'Data Retur Pembelian berhasil dikunci'
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengunci data: ' . $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'user' => Auth::user(),
