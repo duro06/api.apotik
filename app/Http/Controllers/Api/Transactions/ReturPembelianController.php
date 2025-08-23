@@ -130,7 +130,7 @@ class ReturPembelianController extends Controller
                 $stoksekarang = 0;
                 $sisastok_k = 0;
                 $jumlahretur_k = (int) $validated['jumlahretur_b'] * (int) $validated['isi'];
-                if($request->flag === '1'){
+
                     $cekstok = Stok::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
                     $stoksekarang = $cekstok->jumlah_k;
                     $sisastok_k = $stoksekarang - $jumlahretur_k;
@@ -143,7 +143,7 @@ class ReturPembelianController extends Controller
                         $cekstok->update(['jumlah_k' => $sisastok_k]);
                     }
 
-                }
+
 
                 if (!$validated['noretur']) {
                     DB::select('call noretur_penjualan(@nomor)');
@@ -264,9 +264,12 @@ class ReturPembelianController extends Controller
         try {
             DB::beginTransaction();
             // Hapus order records
-            $cari = ReturPembelian_r::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
+            $cari = ReturPembelian_r::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->where('id', $request->id)->first();
             $stok = Stok::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
-            $stok->update(['jumlah_k' => $stok->jumlah_k + $cari->jumlahretur_k]);
+
+            $sisastok = $stok->jumlah_k + $cari->jumlahretur_k;
+
+            $stok->update(['jumlah_k' => $sisastok]);
             ReturPembelian_r::where('id', $request->id)->delete();
 
             DB::commit();
