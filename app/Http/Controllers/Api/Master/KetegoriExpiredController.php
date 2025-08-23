@@ -39,11 +39,14 @@ class KetegoriExpiredController extends Controller
         $kode = $request->kode;
         $validated = $request->validate([
             'nama' => 'required',
-            'hari' => 'required|numeric',
+            'dari' => 'required|numeric',
+            'sampai' => 'required|numeric',
         ], [
             'nama.required' => 'Nama wajib diisi.',
-            'hari.required' => 'Jarak Expired wajib diisi.',
-            'hari.numeric' => 'Jarak Expired harus Angka.'
+            'dari.required' => 'Dari wajib diisi.',
+            'dari.numeric' => 'Dari harus Angka.',
+            'sampai.required' => 'Sampai wajib diisi.',
+            'sampai.numeric' => 'Sampai harus Angka.'
         ]);
 
         if (!$kode) {

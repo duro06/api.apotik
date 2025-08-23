@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('kode')->nullable();
             $table->string('nama')->nullable();
-            $table->integer('hari')->default(1);
+            $table->integer('dari')->default(1);
+            $table->integer('sampai')->default(1);
             $table->timestamps();
         });
     }
