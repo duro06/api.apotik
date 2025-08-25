@@ -59,7 +59,8 @@ class BebanController extends Controller
                 ],
                 [
                     'keterangan' => $request->keterangan,
-                    'kode_user' => $user->kode
+                    'kode_user' => $user->kode,
+                    'flag' => '',
                 ]
             );
 
