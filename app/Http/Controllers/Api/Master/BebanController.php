@@ -25,7 +25,7 @@ class BebanController extends Controller
             $q->where(function ($query) {
                 $query->where('nama_beban', 'like', '%' . request('q') . '%');
             });
-        })->whereNull('flag')
+        })->where('flag', '')
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
@@ -45,7 +45,8 @@ class BebanController extends Controller
 
         $data = Beban::updateOrCreate(
             [
-                'nama_beban' => $validated['nama_beban']
+                'nama_beban' => $validated['nama_beban'],
+                'flag' => ''
             ],
             $validated
         );

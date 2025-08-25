@@ -48,10 +48,10 @@ class BebanController extends Controller
         try {
             DB::beginTransaction();
             $user = Auth::user();
-            if($request->has('notransaksi')){
+            if($request->notransaksi != null || $request->notransaksi != ''){
                 $notransaksi = $request->notransaksi;
             }else{
-                $notransaksi = date('YmdHis').'BB';
+                $notransaksi = date('YmdHis').'-BB';
             }
             $bebanHeder = Beban_h::updateOrCreate(
                 [
@@ -59,7 +59,8 @@ class BebanController extends Controller
                 ],
                 [
                     'keterangan' => $request->keterangan,
-                    'kode_user' => $user->kode
+                    'kode_user' => $user->kode,
+                    'flag' => '',
                 ]
             );
 

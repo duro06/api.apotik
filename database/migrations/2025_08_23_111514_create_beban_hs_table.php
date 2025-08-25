@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('beban_hs', function (Blueprint $table) {
             $table->id();
             $table->string('notransaksi');
-            $table->string('keterangan');
-            $table->string('flag');
+            $table->string('keterangan')->nullable()->default(null);
+            $table->string('flag')->nullable()->default(null);
             $table->string('kode_user');
             $table->timestamps();
         });
