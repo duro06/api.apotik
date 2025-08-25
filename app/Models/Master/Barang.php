@@ -47,7 +47,7 @@ class Barang extends Model
     {
         return $this->hasMany(StokOpname::class, 'kode_barang', 'kode');
     }
-    public function ReturPembelianRinci()
+    public function returPembelianRinci()
     {
         return $this->hasMany(ReturPembelian_r::class, 'kode_barang', 'kode');
     }
