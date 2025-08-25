@@ -48,7 +48,7 @@ class BebanController extends Controller
         try {
             DB::beginTransaction();
             $user = Auth::user();
-            if($request->has('notransaksi')){
+            if($request->notransaksi != null || $request->notransaksi != ''){
                 $notransaksi = $request->notransaksi;
             }else{
                 $notransaksi = date('YmdHis').'BB';
