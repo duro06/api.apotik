@@ -45,7 +45,8 @@ class BebanController extends Controller
 
         $data = Beban::updateOrCreate(
             [
-                'nama_beban' => $validated['nama_beban']
+                'nama_beban' => $validated['nama_beban'],
+                'flag' => ''
             ],
             $validated
         );
