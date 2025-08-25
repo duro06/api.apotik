@@ -51,7 +51,7 @@ class BebanController extends Controller
             if($request->notransaksi != null || $request->notransaksi != ''){
                 $notransaksi = $request->notransaksi;
             }else{
-                $notransaksi = date('YmdHis').'BB';
+                $notransaksi = date('YmdHis').'-BB';
             }
             $bebanHeder = Beban_h::updateOrCreate(
                 [
