@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     // 'middleware' => 'auth:api',
     'middleware' => 'auth:sanctum',
-    'prefix' => 'transactions/penerimaan'
+    'prefix' => 'transactions/beban'
 ], function () {
     Route::get('/get-list', [BebanController::class, 'index']);
     Route::post('/simpan', [BebanController::class, 'simpan']);
