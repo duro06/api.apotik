@@ -74,6 +74,7 @@ class ReturPembelianController extends Controller
 
     public function simpan(Request $request)
     {
+
         $validated = $request->validate([
             'noretur' => 'nullable',
             'nopenerimaan' => 'required',
@@ -122,7 +123,6 @@ class ReturPembelianController extends Controller
             'harga.required' => 'Harga Harus Di isi.',
         ]);
 
-
         try{
             DB::beginTransaction();
                 $jumlahretur_k = 0;
@@ -134,7 +134,8 @@ class ReturPembelianController extends Controller
                     $cekstok = Stok::where('id_penerimaan_rinci', $request->id_penerimaan_rinci)->first();
                     $stoksekarang = $cekstok->jumlah_k;
                     $sisastok_k = $stoksekarang - $jumlahretur_k;
-                    if ($jumlahretur_k > $sisastok_k) {
+
+                    if ($jumlahretur_k > $stoksekarang) {
                         return new JsonResponse([
                             'success' => false,
                             'message' => 'Jumlah retur melebihi stok.',
