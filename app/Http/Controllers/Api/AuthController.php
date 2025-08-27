@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\Formating\FormatingHelper;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Setting\Menu;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,8 @@ class AuthController extends Controller
                     ->orWhere('kode', 'like', '%' . request('q') . '%');
             });
         })
+            ->with('akses.items.children')
+            ->where('username', '!=', 'sa')
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate(request('per_page'));
@@ -142,9 +145,14 @@ class AuthController extends Controller
     {
         //
         $user = Auth::user();
+        if ($user->username == 'sa') {
+            $items = Menu::with('children')->get();
+            $data = User::find($user->id);
+            $data->items = $items;
+        } else $data = User::with('akses.items.children')->find($user->id);
 
         return new JsonResponse([
-            'user' => $user
+            'user' => $data
         ]);
     }
 
