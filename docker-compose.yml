@@ -21,11 +21,6 @@ services:
         depends_on:
             - db
             - redis
-        healthcheck:
-            test: ["CMD-SHELL", "curl -f http://localhost:8000 || exit 1"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
 
     db:
         image: mysql/mysql-server:5.7
@@ -59,8 +54,8 @@ services:
         container_name: nginx_apotik
         restart: unless-stopped
         depends_on:
-            - app:
-                  condition: service_healthy
+            - app
+
         ports:
             # - "8182:80"
             - "8185:80"
@@ -69,6 +64,12 @@ services:
             - ./docker-compose/nginx:/etc/nginx/conf.d
         networks:
             - harrynet
+        healthcheck:
+            test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
 
     redis:
         image: redis:7
