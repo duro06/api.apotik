@@ -10,9 +10,11 @@ class Menu extends Model
 {
     use HasFactory, LogsActivity;
     protected $guarded = ['id'];
+    protected $hidden = ['created_at', 'updated_at'];
+
 
     public function children()
     {
-        return $this->hasMany(Submenu::class);
+        return $this->hasMany(Submenu::class, 'menu_id', 'id');
     }
 }

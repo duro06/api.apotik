@@ -6,6 +6,7 @@ use App\Helpers\Formating\FormatingHelper;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Setting\Menu;
+use App\Models\Setting\Submenu;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,7 +36,7 @@ class AuthController extends Controller
                     ->orWhere('kode', 'like', '%' . request('q') . '%');
             });
         })
-            ->with('akses.items.children')
+            // ->with('akses.items.children')
             ->where('username', '!=', 'sa')
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
@@ -149,7 +150,20 @@ class AuthController extends Controller
             $items = Menu::with('children')->get();
             $data = User::find($user->id);
             $data->items = $items;
-        } else $data = User::with('akses.items.children')->find($user->id);
+        } else {
+            $data = User::with('akses')->find($user->id);
+            $menuIds = collect($data['akses'])->pluck('menu_id')->unique()->values();
+            $subMenuIds = collect($data['akses'])->pluck('submenu_id')->unique()->values();
+            $menus = Menu::wherein('id', $menuIds)->get();
+            $submenus = Submenu::wherein('id', $subMenuIds)->get();
+            $result = [];
+            foreach ($menus as $key) {
+
+                $key['children'] = $submenus->where('menu_id', $key->id)->values();
+                $result[] = $key;
+            }
+            $data->items = $result;
+        }
 
         return new JsonResponse([
             'user' => $data

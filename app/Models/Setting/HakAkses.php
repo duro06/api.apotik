@@ -12,6 +12,6 @@ class HakAkses extends Model
     protected $guarded = ['id'];
     public function items()
     {
-        return $this->hasMany(Menu::class);
+        return $this->hasMany(Menu::class, 'id', 'menu_id');
     }
 }

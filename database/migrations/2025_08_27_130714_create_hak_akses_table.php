@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('menu_id');
-            $table->unsignedBigInteger('submenu_id');
+            $table->unsignedBigInteger('submenu_id')->nullable();
             $table->timestamps();
         });
     }

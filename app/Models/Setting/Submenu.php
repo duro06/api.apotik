@@ -10,6 +10,8 @@ class Submenu extends Model
 {
     use HasFactory, LogsActivity;
     protected $guarded = ['id'];
+    protected $hidden = ['created_at', 'updated_at'];
+
     public function menu()
     {
         return $this->belongsTo(Menu::class);

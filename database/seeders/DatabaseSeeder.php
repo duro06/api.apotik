@@ -272,5 +272,28 @@ class DatabaseSeeder extends Seeder
                 'component' => 'IndexPage',
             ]
         );
+        //  Setting
+        $setting = Menu::updateOrCreate(
+            ['title' => 'Settings'],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/setting',
+                'name' => null,
+                'view' => null,
+                'component' => null,
+            ]
+        );
+        $setting->children()->updateOrCreate(
+            [
+                'title' => 'Aplikasi',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/settings/aplikasi',
+                'name' => 'settings.aplikasi',
+                'view' => '/views/settings/aplikasi',
+                'component' => 'IndexPage',
+            ]
+        );
     }
 }
