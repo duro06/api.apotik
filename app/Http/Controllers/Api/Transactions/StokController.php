@@ -103,12 +103,23 @@ class StokController extends Controller
             'sort' => request('sort', 'asc'),
             'page' => request('page', 1),
             'per_page' => request('per_page', 10),
-            'from' => request('from', Carbon::now()->format('Y-m-01')) . ' 00:00:00',
-            'to' => request('to', Carbon::now()->format('Y-m-d')) . ' 23:59:59',
+            'bulan' => request('bulan') ?? Carbon::now()->month,
+            'tahun' => request('tahun') ?? Carbon::now()->year,
         ];
-        $akhirBulanLalu = Carbon::parse($req['from'])->subMonth()->endOfMonth();
-        // $lastMonth = $akhirBulanLalu->toDateTimeString();
-        $lastMonth = $akhirBulanLalu->toDateString();
+        $target = Carbon::create($req['tahun'], $req['bulan'], 1);
+        $now = $target->copy()->startOfMonth();
+        $last = $target->copy()->endOfMonth();
+        $akhirBulanLalu = $target->copy()->subMonth()->endOfMonth();
+        $lastMonth = $akhirBulanLalu->toDateTimeString();
+        $awalBulan = $now->toDateTimeString();
+        $akhirBulan = $last->toDateTimeString();
+        // $lastMonth = $akhirBulanLalu->toDateString();
+        // return new JsonResponse([
+        //     'now' => $now,
+        //     'akhirBulanLalu' => $akhirBulanLalu,
+        //     'lastMonth' => $lastMonth,
+        //     'awalBulan' => $awalBulan,
+        // ]);
         $raw = Barang::query();
         $raw->when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
@@ -132,51 +143,51 @@ class StokController extends Controller
                         ->where('jumlah_k', '>', 0)
                         ->groupBy('kode_barang');
                 },
-                'penyesuaian' => function ($q) use ($req) {
+                'penyesuaian' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'kode_barang',
                         DB::raw('sum(jumlah_k) as jumlah_k'),
                     )
-                        ->whereBetween('tgl_penyesuaian', [$req['from'], $req['to']])
+                        ->whereBetween('tgl_penyesuaian', [$awalBulan, $akhirBulan])
                         ->groupBy('kode_barang');
                 },
-                'penjualanRinci' => function ($q) use ($req) {
+                'penjualanRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'penjualan_r_s.kode_barang',
                         DB::raw('sum(penjualan_r_s.jumlah_k) as jumlah_k'),
                     )
                         ->leftJoin('penjualan_h_s', 'penjualan_h_s.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
-                        ->whereBetween('penjualan_h_s.tgl_penjualan', [$req['from'], $req['to']])
+                        ->whereBetween('penjualan_h_s.tgl_penjualan', [$awalBulan, $akhirBulan])
                         ->whereNotNull('penjualan_h_s.flag')
                         ->groupBy('penjualan_r_s.kode_barang');
                 },
-                'returPenjualanRinci' => function ($q) use ($req) {
+                'returPenjualanRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'retur_penjualan_rs.kode_barang',
                         DB::raw('sum(retur_penjualan_rs.jumlah_k) as jumlah_k'),
                     )
                         ->leftJoin('retur_penjualan_hs', 'retur_penjualan_hs.noretur', '=', 'retur_penjualan_rs.noretur')
-                        ->whereBetween('retur_penjualan_hs.tgl_retur', [$req['from'], $req['to']])
+                        ->whereBetween('retur_penjualan_hs.tgl_retur', [$awalBulan, $akhirBulan])
                         ->whereNotNull('retur_penjualan_hs.flag')
                         ->groupBy('retur_penjualan_rs.kode_barang');
                 },
-                'penerimaanRinci' => function ($q) use ($req) {
+                'penerimaanRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'penerimaan_rs.kode_barang',
                         DB::raw('sum(penerimaan_rs.jumlah_k) as jumlah_k'),
                     )
                         ->leftJoin('penerimaan_hs', 'penerimaan_hs.nopenerimaan', '=', 'penerimaan_rs.nopenerimaan')
-                        ->whereBetween('penerimaan_hs.tgl_penerimaan', [$req['from'], $req['to']])
+                        ->whereBetween('penerimaan_hs.tgl_penerimaan', [$awalBulan, $akhirBulan])
                         ->whereNotNull('penerimaan_hs.flag')
                         ->groupBy('penerimaan_rs.kode_barang');
                 },
-                'ReturPembelianRinci' => function ($q) use ($req) {
+                'ReturPembelianRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'retur_pembelian_rs.kode_barang',
-                        DB::raw('sum(retur_pembelian_rs.jumlah_k) as jumlah_k'),
+                        DB::raw('sum(retur_pembelian_rs.jumlahretur_k) as jumlah_k'),
                     )
                         ->leftJoin('retur_pembelian_hs', 'retur_pembelian_hs.noretur', '=', 'retur_pembelian_rs.noretur')
-                        ->whereBetween('retur_pembelian_hs.tglretur', [$req['from'], $req['to']])
+                        ->whereBetween('retur_pembelian_hs.tglretur', [$awalBulan, $akhirBulan])
                         ->whereNotNull('retur_pembelian_hs.flag')
                         ->groupBy('retur_pembelian_rs.kode_barang');
                 },
@@ -191,9 +202,16 @@ class StokController extends Controller
     public function kartuStokRinci()
     {
         $req = [
-            'from' => request('from', Carbon::now()->format('Y-m-01')) . ' 00:00:00',
-            'to' => request('to', Carbon::now()->format('Y-m-d')) . ' 23:59:59',
+            'bulan' => request('bulan') ?? Carbon::now()->month,
+            'tahun' => request('tahun') ?? Carbon::now()->year,
         ];
+        $target = Carbon::create($req['tahun'], $req['bulan'], 1);
+        $now = $target->copy()->startOfMonth();
+        $last = $target->copy()->endOfMonth();
+        $akhirBulanLalu = $target->copy()->subMonth()->endOfMonth();
+        $lastMonth = $akhirBulanLalu->toDateTimeString();
+        $awalBulan = $now->toDateTimeString();
+        $akhirBulan = $last->toDateTimeString();
         $akhirBulanLalu = Carbon::parse($req['from'])->subMonth()->endOfMonth();
         // $lastMonth = $akhirBulanLalu->toDateTimeString();
         $lastMonth = $akhirBulanLalu->toDateString();
@@ -206,10 +224,10 @@ class StokController extends Controller
                 'stok' => function ($q) {
                     $q->where('jumlah_k', '>', 0);
                 },
-                'penyesuaian' => function ($q) use ($req) {
-                    $q->whereBetween('tgl_penyesuaian', [$req['from'], $req['to']]);
+                'penyesuaian' => function ($q) use ($awalBulan, $akhirBulan) {
+                    $q->whereBetween('tgl_penyesuaian', [$awalBulan, $akhirBulan]);
                 },
-                'penjualanRinci' => function ($q) use ($req) {
+                'penjualanRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'penjualan_r_s.kode_barang',
                         'penjualan_r_s.jumlah_k',
@@ -217,10 +235,10 @@ class StokController extends Controller
                         'penjualan_h_s.nopenjualan',
                     )
                         ->leftJoin('penjualan_h_s', 'penjualan_h_s.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
-                        ->whereBetween('penjualan_h_s.tgl_penjualan', [$req['from'], $req['to']])
+                        ->whereBetween('penjualan_h_s.tgl_penjualan', [$awalBulan, $akhirBulan])
                         ->whereNotNull('penjualan_h_s.flag');
                 },
-                'returPenjualanRinci' => function ($q) use ($req) {
+                'returPenjualanRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'retur_penjualan_rs.kode_barang',
                         'retur_penjualan_rs.jumlah_k',
@@ -228,10 +246,10 @@ class StokController extends Controller
                         'retur_penjualan_hs.noretur',
                     )
                         ->leftJoin('retur_penjualan_hs', 'retur_penjualan_hs.noretur', '=', 'retur_penjualan_rs.noretur')
-                        ->whereBetween('retur_penjualan_hs.tgl_retur', [$req['from'], $req['to']])
+                        ->whereBetween('retur_penjualan_hs.tgl_retur', [$awalBulan, $akhirBulan])
                         ->whereNotNull('retur_penjualan_hs.flag');
                 },
-                'penerimaanRinci' => function ($q) use ($req) {
+                'penerimaanRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'penerimaan_rs.kode_barang',
                         'penerimaan_rs.jumlah_k',
@@ -239,18 +257,18 @@ class StokController extends Controller
                         'penerimaan_hs.tgl_penerimaan',
                     )
                         ->leftJoin('penerimaan_hs', 'penerimaan_hs.nopenerimaan', '=', 'penerimaan_rs.nopenerimaan')
-                        ->whereBetween('penerimaan_hs.tgl_penerimaan', [$req['from'], $req['to']])
+                        ->whereBetween('penerimaan_hs.tgl_penerimaan', [$awalBulan, $akhirBulan])
                         ->whereNotNull('penerimaan_hs.flag');
                 },
-                'ReturPembelianRinci' => function ($q) use ($req) {
+                'ReturPembelianRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'retur_pembelian_rs.kode_barang',
-                        'retur_pembelian_rs.jumlah_k',
+                        'retur_pembelian_rs.jumlahretur_k as jumlah_k',
                         'retur_pembelian_hs.noretur',
                         'retur_pembelian_hs.tglretur',
                     )
                         ->leftJoin('retur_pembelian_hs', 'retur_pembelian_hs.noretur', '=', 'retur_pembelian_rs.noretur')
-                        ->whereBetween('retur_pembelian_hs.tglretur', [$req['from'], $req['to']])
+                        ->whereBetween('retur_pembelian_hs.tglretur', [$awalBulan, $akhirBulan])
                         ->whereNotNull('retur_pembelian_hs.flag');
                 },
             ])
