@@ -21,4 +21,9 @@ class Penerimaan_h extends Model
     {
         return $this->hasMany(Penerimaan_r::class, 'nopenerimaan', 'nopenerimaan');
     }
+
+    public function retur()
+    {
+        return $this->hasMany(ReturPembelian_h::class, 'nopenerimaan', 'nopenerimaan');
+    }
 }

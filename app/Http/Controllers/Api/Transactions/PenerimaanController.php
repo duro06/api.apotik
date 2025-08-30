@@ -75,6 +75,7 @@ class PenerimaanController extends Controller
             'pajak_rupiah' => 'nullable',
             'diskon_rupiah' => 'nullable',
             'flag' => 'nullable',
+            'hutang' => 'required',
         ], [
             'noorder.required' => 'No. Order Harus Di isi.',
             'tgl_penerimaan.required' => 'Tgl Penerimaan Harus Di isi.',
@@ -92,6 +93,7 @@ class PenerimaanController extends Controller
             // 'harga.required' => 'Harga Harus Di isi.',
             'satuan_k.required' => 'Satuan Kecil Harus Di isi.',
             'satuan_b.required' => 'Satuan Besar Harus Di isi.',
+            'hutang.required' => 'Kolom Hutang Harus Di isi.',
         ]);
 
         // $user = Auth::user();
@@ -143,6 +145,7 @@ class PenerimaanController extends Controller
                     'kode_user' => $user->kode,
                     'pajak' => $validated['pajak'],
                     'kode_suplier' => $validated['kode_suplier'],
+                    'hutang' => $validated['hutang'],
                 ]
             );
             if (!$penerimaanHeader) {
