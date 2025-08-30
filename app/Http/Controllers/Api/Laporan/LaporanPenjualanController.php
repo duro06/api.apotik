@@ -106,7 +106,9 @@ class LaporanPenjualanController extends Controller
                                 ->on('retur_penjualan_rs.id_stok', '=', 'penjualan_r_s.id_stok');
                         })
                     ;
-                }
+                },
+                'pelanggan',
+                'dokter',
             ])
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
