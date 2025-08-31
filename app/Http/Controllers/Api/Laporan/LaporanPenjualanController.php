@@ -72,13 +72,16 @@ class LaporanPenjualanController extends Controller
     public function transakction()
     {
         $req = [
-            'order_by' => request('order_by') ?? 'created_at',
+            'order_by' => request('order_by') ?? 'tgl_penjualan',
             'sort' => request('sort') ?? 'asc',
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
             'from' => request('from') ?? null,
             'to' => request('to') ?? null,
         ];
+
+        $allowed = ['created_at', 'tgl_penjualan', 'nopenjualan']; // whitelist biar aman
+        $orderBy = in_array($req['order_by'], $allowed) ? $req['order_by'] : 'created_at';
         $raw = PenjualanH::query();
         $raw->when($req['from'] && $req['to'], function ($q) use ($req) {
             $q->whereBetween('penjualan_h_s.tgl_penjualan', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59']);
@@ -110,12 +113,36 @@ class LaporanPenjualanController extends Controller
                 'pelanggan',
                 'dokter',
             ])
-            ->orderBy($req['order_by'], $req['sort']);
+            // ->orderBy($req['order_by'], $req['sort']);
+            ->orderBy("penjualan_h_s.$orderBy", $req['sort']);
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
+        // Hitung total per penjualan (dari relasi rinci)
+        // $data->getCollection()->transform(function ($item) {
+        //     $item->total_subtotal = $item->rinci->sum('subtotal');
+        //     $item->total_subtotal_retur = $item->rinci->sum('subtotal_retur');
+        //     return $item;
+        // });
+
+        $grandTotals = (clone $raw)
+            ->selectRaw('
+            SUM(penjualan_r_s.subtotal) as total_subtotal,
+            SUM(COALESCE(retur_penjualan_rs.jumlah_k, 0) * COALESCE(retur_penjualan_rs.harga, 0)) as total_subtotal_retur
+        ')
+            ->leftJoin('penjualan_r_s', 'penjualan_r_s.nopenjualan', '=', 'penjualan_h_s.nopenjualan')
+            ->leftJoin('retur_penjualan_rs', function ($q) {
+                $q->on('retur_penjualan_rs.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
+                    ->on('retur_penjualan_rs.kode_barang', '=', 'penjualan_r_s.kode_barang')
+                    ->on('retur_penjualan_rs.id_stok', '=', 'penjualan_r_s.id_stok');
+            })
+            ->first();
 
 
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
+        $resp['grand_total'] = [
+            'total_subtotal' => (float) $grandTotals->total_subtotal,
+            'total_subtotal_retur' => (float) $grandTotals->total_subtotal_retur
+        ];
         return new JsonResponse($resp);
     }
 }
