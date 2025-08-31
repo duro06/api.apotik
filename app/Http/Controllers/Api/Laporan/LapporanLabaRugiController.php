@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Laporan;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Master\Beban;
 use App\Models\Transactions\Beban_h;
 use App\Models\Transactions\PenjualanH;
 use App\Models\Transactions\ReturPenjualan_h;
@@ -40,27 +41,35 @@ class LapporanLabaRugiController extends Controller
             ->withSum('returPenjualan_r', DB::raw('jumlah_k * harga_beli'))
             ->whereNotNull('flag')
             ->get();
-        $beban = Beban_h::when($req['from'] && $req['to'], function ($q) use ($req) {
-            $q->whereBetween('created_at', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59']);
-        })->withSum('rincian', 'subtotal')
-            ->with([
-                'rincian' => function ($q) {
-                    $q
-                        ->select(
-                            'kode_beban',
-                            'notransaksi',
-                            'subtotal',
-                        )
-                        ->with('mbeban');
-                },
-            ])
-            ->whereNotNull('flag')
+        $beban = Beban::withSum([
+            'rincian as subtotal' => function ($q) use ($req) {
+                $q->leftJoin('beban_hs', 'beban_hs.notransaksi', '=', 'beban_rs.notransaksi')
+                    ->whereBetween('beban_hs.created_at', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59'])
+                    ->whereNotNull('beban_hs.flag');
+            }
+        ], 'subtotal')
             ->get();
+        // $beban = Beban_h::when($req['from'] && $req['to'], function ($q) use ($req) {
+        //     $q->whereBetween('created_at', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59']);
+        // })->withSum('rincian', 'subtotal')
+        //     ->with([
+        //         'rincian' => function ($q) {
+        //             $q
+        //                 ->select(
+        //                     'kode_beban',
+        //                     'notransaksi',
+        //                     'subtotal',
+        //                 )
+        //                 ->with('mbeban');
+        //         },
+        //     ])
+        //     ->whereNotNull('flag')
+        //     ->get();
         $totalPenjualan = (int)$penjualan->sum('rinci_sum_subtotal');
         $hppPenjualan = (int)$penjualan->sum('rinci_sum_jumlah_k_harga_beli');
         $totalReturPenjualan = (int)$returPenjualan->sum('retur_penjualan_r_sum_jumlah_k_harga');
         $hppReturPenjualan = (int)$returPenjualan->sum('retur_penjualan_r_sum_jumlah_k_harga_beli');
-        $totalbeban = (int)$beban->sum('rincian_sum_subtotal');
+        $totalbeban = (int)$beban->sum('subtotal');
         $penjualanBersih = $totalPenjualan - $totalReturPenjualan;
         $hppPenjualanBersih = $hppPenjualan - $hppReturPenjualan;
         $labaKotor = $penjualanBersih - $hppPenjualanBersih;
