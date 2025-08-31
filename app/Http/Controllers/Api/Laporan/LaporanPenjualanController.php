@@ -141,7 +141,8 @@ class LaporanPenjualanController extends Controller
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
         $resp['grand_total'] = [
             'total_subtotal' => (float) $grandTotals->total_subtotal,
-            'total_subtotal_retur' => (float) $grandTotals->total_subtotal_retur
+            'total_subtotal_retur' => (float) $grandTotals->total_subtotal_retur,
+            'total_penjualan' => (float) $grandTotals->total_subtotal - (float) $grandTotals->total_subtotal_retur
         ];
         return new JsonResponse($resp);
     }
