@@ -212,7 +212,7 @@ class StokController extends Controller
         $lastMonth = $akhirBulanLalu->toDateTimeString();
         $awalBulan = $now->toDateTimeString();
         $akhirBulan = $last->toDateTimeString();
-        $akhirBulanLalu = Carbon::parse($req['from'])->subMonth()->endOfMonth();
+        // $akhirBulanLalu = Carbon::parse($req['from'])->subMonth()->endOfMonth();
         // $lastMonth = $akhirBulanLalu->toDateTimeString();
         $lastMonth = $akhirBulanLalu->toDateString();
         $data = Barang::where('id', request('id'))
