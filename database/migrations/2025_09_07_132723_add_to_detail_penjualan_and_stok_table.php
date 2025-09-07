@@ -19,6 +19,9 @@ return new class extends Migration
         Schema::table('penjualan_r_s', function (Blueprint $table) {
             $table->decimal('hpp', 20)->default(0)->after('harga_beli');
         });
+        Schema::table('retur_penjualan_rs', function (Blueprint $table) {
+            $table->decimal('hpp', 20)->default(0)->after('harga_beli');
+        });
     }
 
     /**
@@ -32,6 +35,11 @@ return new class extends Migration
         });
         if (Schema::hasColumn('penjualan_r_s', 'hpp')) {
             Schema::table('penjualan_r_s', function (Blueprint $table) {
+                $table->dropColumn('hpp');
+            });
+        }
+        if (Schema::hasColumn('retur_penjualan_rs', 'hpp')) {
+            Schema::table('retur_penjualan_rs', function (Blueprint $table) {
                 $table->dropColumn('hpp');
             });
         }

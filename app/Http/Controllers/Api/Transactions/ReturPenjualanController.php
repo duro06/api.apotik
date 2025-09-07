@@ -128,6 +128,7 @@ class ReturPenjualanController extends Controller
             'satuan_k' => 'required',
             'harga' => 'required',
             'harga_beli' => 'required',
+            'hpp' => 'required',
             'id_stok' => 'required',
             'id_penerimaan_rinci' => 'required',
         ], [
@@ -139,6 +140,7 @@ class ReturPenjualanController extends Controller
             'satuan_k.required' => 'Satuan harus diisi.',
             'harga.required' => 'Harga harus diisi.',
             'harga_beli.required' => 'Harga Beli harus diisi.',
+            'hpp.required' => 'HPP harus diisi.',
             'id_stok.required' => 'id stok harus diisi.',
             'id_penerimaan_rinci.required' => 'id rinci penerimaan harus diisi.',
         ]);
@@ -200,6 +202,7 @@ class ReturPenjualanController extends Controller
                     'satuan_k' => $validated['satuan_k'],
                     'harga' => $validated['harga'],
                     'harga_beli' => $validated['harga_beli'],
+                    'hpp' => $validated['hpp'],
                     'id_penerimaan_rinci' => $validated['id_penerimaan_rinci'],
                     'nopenerimaan' => $validated['nopenerimaan'],
                     'id_stok' => $validated['id_stok'],
