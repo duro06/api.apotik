@@ -27,6 +27,8 @@ class PenjualanController extends Controller
             'page' => request('page') ?? 1,
             'per_page' => request('per_page') ?? 10,
         ];
+        $limitHargaTertinggi = 5;
+
         // tambah penjualan yang belum selesai -- ibarat alokasi... maping di front
         $data = Barang::when(request('q'), function ($q) {
             $q->where('nama', 'like', '%' . request('q') . '%')
@@ -47,9 +49,43 @@ class PenjualanController extends Controller
                         ->groupBy('kode_barang', 'id_stok');
                 }
             ])
+            ->addSelect([
+                'harga_tertinggi_ids' => Stok::query()
+                    ->selectRaw("
+                SUBSTRING_INDEX(
+                    GROUP_CONCAT(stoks.id ORDER BY stoks.id DESC SEPARATOR ','),
+                    ',',
+                    {$limitHargaTertinggi}
+                )
+            ")
+                    ->whereColumn('stoks.kode_barang', '=', 'barangs.kode')
+            ])
             ->orderBy($req['order_by'], $req['sort'])
-            ->limit($req['per_page'])->get();
+            ->limit($req['per_page'])
+            ->get();
 
+        $stokIds = $data->pluck('harga_tertinggi_ids')
+            ->filter() // buang null
+            ->map(fn($ids) => explode(',', $ids))
+            ->flatten();
+
+        $stokHargaTertinggi = Stok::select('id', 'kode_barang', 'harga_total')
+            ->whereIn('id', $stokIds)
+            ->get();
+        foreach ($data as $barang) {
+            $ids = $barang->harga_tertinggi_ids ? explode(',', $barang->harga_tertinggi_ids) : [];
+
+            $barangHargaTertinggi = $stokHargaTertinggi
+                ->whereIn('id', $ids)
+                ->sortBy(fn($row) => array_flip($ids)[$row->id])
+                ->values();
+
+            // set relasi semu "harga_tertinggi"
+            // $barang->setRelation('harga_tertinggi', $barangHargaTertinggi);
+
+            // langsung hitung max harga_total
+            $barang->hpp = $barangHargaTertinggi->max('harga_total');
+        }
         return new JsonResponse([
             'data' => $data
         ]);
@@ -101,6 +137,7 @@ class PenjualanController extends Controller
             'isi' => 'required',
             'harga_jual' => 'required', // ini dari master
             'harga_beli' => 'required', // ini dari master
+            'hpp' => 'required', // ini di taruh di master, hasil query dari 5 harga terakhir
             'id_penerimaan_rinci' => 'required', // ini dari stok
             'nopenerimaan' => 'required', // ini dari stok
             'nobatch' => 'required', // ini dari stok
@@ -117,6 +154,7 @@ class PenjualanController extends Controller
             'nobatch.required' => 'Nomor Batch belum di ikutkan, silahkan kontak penyedia IT',
             'tgl_exprd.required' => 'Tanggal Expired Obat di ikutkan, silahkan kontak penyedia IT',
             'id_stok.required' => 'id Stok belum di ikutkan, silahkan kontak penyedia IT',
+            'hpp.required' => 'HPP belum di ikutkan, silahkan kontak penyedia IT',
         ]);
         try {
             DB::beginTransaction();
@@ -158,6 +196,7 @@ class PenjualanController extends Controller
                 'tgl_exprd' => $validated['tgl_exprd'],
                 'harga_jual' => $validated['harga_jual'],
                 'harga_beli' => $validated['harga_beli'],
+                'hpp' => $validated['hpp'],
                 'subtotal' => $subtotal,
                 'kode_user' => $user->kode,
             ]);
