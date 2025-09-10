@@ -47,6 +47,8 @@ class BarangController extends Controller
             'kandungan' => 'nullable',
             'harga_jual_resep_k' => 'nullable',
             'harga_jual_biasa_k' => 'nullable',
+            'persen_biasa' => 'nullable',
+            'persen_resep' => 'nullable',
         ], [
             'nama.required' => 'Nama wajib diisi.'
         ]);
