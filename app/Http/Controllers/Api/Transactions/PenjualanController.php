@@ -138,7 +138,6 @@ class PenjualanController extends Controller
             'harga_jual' => 'required', // ini dari master
             'harga_beli' => 'required', // ini dari master
             // 'hpp' => 'required', // ini di taruh di master, hasil query dari 5 harga terakhir
-            'hpp' => 'nullable', // ini di taruh di master, hasil query dari 5 harga terakhir
             'id_penerimaan_rinci' => 'required', // ini dari stok
             'nopenerimaan' => 'required', // ini dari stok
             'nobatch' => 'required', // ini dari stok
