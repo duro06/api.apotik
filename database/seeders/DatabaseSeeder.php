@@ -295,5 +295,17 @@ class DatabaseSeeder extends Seeder
                 'component' => 'IndexPage',
             ]
         );
+        $setting->children()->updateOrCreate(
+            [
+                'title' => 'Hak Akses',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/settings/hak-akses',
+                'name' => 'settings.hakakses',
+                'view' => '/views/settings/hakakses',
+                'component' => 'IndexPage',
+            ]
+        );
     }
 }
