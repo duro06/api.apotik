@@ -203,6 +203,18 @@ class DatabaseSeeder extends Seeder
         );
         $transaksi->children()->updateOrCreate(
             [
+                'title' => 'Retur PBF',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/transaksi/returpembelian',
+                'name' => 'transaksi.returpembelian',
+                'view' => '/views/transaksi/returpembelian',
+                'component' => 'IndexPage',
+            ]
+        );
+        $transaksi->children()->updateOrCreate(
+            [
                 'title' => 'Penjualan',
             ],
             [
@@ -210,6 +222,18 @@ class DatabaseSeeder extends Seeder
                 'url' => 'admin/transaksi/penjualan',
                 'name' => 'transaksi.penjualan',
                 'view' => '/views/transaksi/penjualan',
+                'component' => 'IndexPage',
+            ]
+        );
+        $transaksi->children()->updateOrCreate(
+            [
+                'title' => 'Retur Penjualan',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/transaksi/returpenjualan',
+                'name' => 'transaksi.returpenjualan',
+                'view' => '/views/transaksi/returpenjualan',
                 'component' => 'IndexPage',
             ]
         );
@@ -225,18 +249,7 @@ class DatabaseSeeder extends Seeder
                 'component' => 'IndexPage',
             ]
         );
-        $transaksi->children()->updateOrCreate(
-            [
-                'title' => 'Retur PBF',
-            ],
-            [
-                'icon' => 'layers',
-                'url' => 'admin/transaksi/returpembelian',
-                'name' => 'transaksi.returpembelian',
-                'view' => '/views/transaksi/returpembelian',
-                'component' => 'IndexPage',
-            ]
-        );
+        
         $transaksi->children()->updateOrCreate(
             [
                 'title' => 'Beban Pengeluaran',
@@ -272,6 +285,54 @@ class DatabaseSeeder extends Seeder
                 'component' => 'IndexPage',
             ]
         );
+        $laporan->children()->updateOrCreate(
+            [
+                'title' => 'Laporan Penjualan',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/laporan/penjualan',
+                'name' => 'laporan.penjualan',
+                'view' => '/views/laporan/penjualan',
+                'component' => 'IndexPage',
+            ]
+        );
+        $laporan->children()->updateOrCreate(
+            [
+                'title' => 'Laporan Pembelian',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/laporan/pembelian',
+                'name' => 'laporan.pembelian',
+                'view' => '/views/laporan/pembelian',
+                'component' => 'IndexPage',
+            ]
+        );
+        $laporan->children()->updateOrCreate(
+            [
+                'title' => 'Laporan Labarugi',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/laporan/labarugi',
+                'name' => 'laporan.labarugi',
+                'view' => '/views/laporan/labarugi',
+                'component' => 'IndexPage',
+            ]
+        );
+        $laporan->children()->updateOrCreate(
+            [
+                'title' => 'Laporan Hutang',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/laporan/hutang',
+                'name' => 'laporan.hutang',
+                'view' => '/views/laporan/hutang',
+                'component' => 'IndexPage',
+            ]
+        );
         //  Setting
         $setting = Menu::updateOrCreate(
             ['title' => 'Settings'],
@@ -292,6 +353,18 @@ class DatabaseSeeder extends Seeder
                 'url' => 'admin/settings/aplikasi',
                 'name' => 'settings.aplikasi',
                 'view' => '/views/settings/aplikasi',
+                'component' => 'IndexPage',
+            ]
+        );
+        $setting->children()->updateOrCreate(
+            [
+                'title' => 'Hak Akses',
+            ],
+            [
+                'icon' => 'layers',
+                'url' => 'admin/settings/hak-akses',
+                'name' => 'settings.hakakses',
+                'view' => '/views/settings/hakakses',
                 'component' => 'IndexPage',
             ]
         );
