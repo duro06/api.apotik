@@ -17,7 +17,15 @@ class Barang extends Model
 {
     use HasFactory, LogsActivity;
     protected $guarded = ['id'];
+    protected $casts = [
+        'harga_jual_resep_k' => 'integer',
+        'harga_jual_biasa_k' => 'integer',
+    ];
 
+    protected $attributes = [
+        'harga_jual_resep_k' => 0,
+        'harga_jual_biasa_k' => 0,
+    ];
     public function penjualanRinci()
     {
         return $this->hasMany(PenjualanR::class, 'kode_barang', 'kode');
