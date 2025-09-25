@@ -110,7 +110,7 @@ class StokController extends Controller
         $now = $target->copy()->startOfMonth();
         $last = $target->copy()->endOfMonth();
         $akhirBulanLalu = $target->copy()->subMonth()->endOfMonth();
-        $lastMonth = $akhirBulanLalu->toDateTimeString();
+        $lastMonth = $akhirBulanLalu->toDateString();
         $awalBulan = $now->toDateTimeString();
         $akhirBulan = $last->toDateTimeString();
         // $lastMonth = $akhirBulanLalu->toDateString();
@@ -127,10 +127,12 @@ class StokController extends Controller
         })
             ->with([
                 'stokAwal' => function ($q) use ($lastMonth) {
-                    $q->select(
-                        'kode_barang',
-                        DB::raw('sum(jumlah_k) as jumlah_k'),
-                    )
+                    $q
+                        ->select(
+                            'kode_barang',
+                            DB::raw('sum(jumlah_k) as jumlah_k'),
+
+                        )
                         ->where('jumlah_k', '>', 0)
                         ->whereDate('tgl_opname', $lastMonth)
                         ->groupBy('kode_barang');
@@ -197,6 +199,7 @@ class StokController extends Controller
         $totalCount = (clone $raw)->count();
         $data = $raw->simplePaginate($req['per_page']);
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
+        $resp['req'] = request()->all();
         return new JsonResponse($resp);
     }
     public function kartuStokRinci()
