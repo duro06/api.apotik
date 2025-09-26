@@ -131,6 +131,7 @@ class ReturPenjualanController extends Controller
             'hpp' => 'required',
             'id_stok' => 'required',
             'id_penerimaan_rinci' => 'required',
+            'diskon' => 'nullable',
         ], [
             'nopenjualan.required' => 'Nomor Penerimaan harus diisi.',
             'nopenerimaan.required' => 'Nomor Faktur harus diisi.',
@@ -206,6 +207,7 @@ class ReturPenjualanController extends Controller
                     'id_penerimaan_rinci' => $validated['id_penerimaan_rinci'],
                     'nopenerimaan' => $validated['nopenerimaan'],
                     'id_stok' => $validated['id_stok'],
+                    'diskon' => $validated['diskon'] ?? 0,
                     'kode_user' => $user->kode
                 ]
             );
