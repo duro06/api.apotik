@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
         }
         // seeder menu
         // dahsboard
-        $dashoard = Menu::updateOrCreate(
+        $dashoard = Menu::firstOrCreate(
             ['title' => 'Dashboard'],
             [
                 'icon' => 'home',
@@ -58,7 +58,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
         //  MASTER
-        $master = Menu::updateOrCreate(
+        $master = Menu::firstOrCreate(
             ['title' => 'Master'],
             [
                 'icon' => 'layers',
@@ -166,7 +166,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
         //  TRANSAKSI
-        $transaksi = Menu::updateOrCreate(
+        $transaksi = Menu::firstOrCreate(
             ['title' => 'Transaksi'],
             [
                 'icon' => 'layers',
@@ -249,7 +249,7 @@ class DatabaseSeeder extends Seeder
                 'component' => 'IndexPage',
             ]
         );
-        
+
         $transaksi->children()->updateOrCreate(
             [
                 'title' => 'Beban Pengeluaran',
@@ -263,7 +263,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
         //  LAPORAN
-        $laporan = Menu::updateOrCreate(
+        $laporan = Menu::firstOrCreate(
             ['title' => 'Laporan'],
             [
                 'icon' => 'layers',
@@ -334,7 +334,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
         //  Setting
-        $setting = Menu::updateOrCreate(
+        $setting = Menu::firstOrCreate(
             ['title' => 'Settings'],
             [
                 'icon' => 'layers',
