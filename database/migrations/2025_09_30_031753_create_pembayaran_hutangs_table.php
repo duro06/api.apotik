@@ -17,6 +17,7 @@ return new class extends Migration
             $table->dateTime('tgl_pelunasan');
             $table->decimal('total_dibayar');
             $table->string('flag');
+            $table->string('kode_user');
             $table->timestamps();
         });
     }
