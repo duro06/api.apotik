@@ -181,21 +181,26 @@ class PembayaranHutangController extends Controller
             DB::beginTransaction();
             $head = PembayaranHutang::find($validated['id']);
             if (!$head) throw new Exception('Transaksi Pembayaran hutang tidak ditemukan');
-            if ($head->flag == '1') throw new Exception('Transaksi Pembayaran hutang Sudah dikunci');
+            if (!empty($head->flag) && $head->flag == '1') throw new Exception('Transaksi Pembayaran hutang Sudah dikunci');
 
-            $tot = PembayaranHutangRinci::selectRaw('sum(total) as total')->where('nopelunasan',  $head->nopelunasan)->groupBy('nopelunasan')->first();
+            $rinc = PembayaranHutangRinci::where('nopelunasan',  $head->nopelunasan)->get();
+            $tot = $rinc->sum('total');
+            if ($rinc->isNotEmpty()) {
+                Penerimaan_h::whereIn('nopenerimaan', $rinc->pluck('nopenerimaan'))
+                    ->update(['flag_hutang' => '1']);
+            }
             $head->update([
-                'total_dibayar' => $tot?->total ?? 0,
+                'total_dibayar' => $tot ?? 0,
                 'flag' => '1',
             ]);
             DB::commit();
             return new JsonResponse([
-                'message' => 'Data berhasil dihapus',
+                'message' => 'Data berhasil dikunci',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+                'message' => 'Gagal Mengunci data: ' . $e->getMessage(),
                 'line' => $e->getLine(),
 
             ], 410);
@@ -233,6 +238,50 @@ class PembayaranHutangController extends Controller
                 'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
                 'line' => $e->getLine(),
 
+            ], 410);
+        }
+    }
+    public function bukaKunci(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required|exists:pembayaran_hutangs,id',
+        ], [
+            'id.required' => 'ID transaksi harus diisi.',
+            'id.exists' => 'Transaksi pembayaran hutang tidak ditemukan.',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $head = PembayaranHutang::find($validated['id']);
+            if (!$head) throw new Exception('Transaksi Pembayaran hutang tidak ditemukan');
+
+            if (empty($head->flag) || $head->flag != '1') {
+                throw new Exception('Transaksi belum dikunci, tidak bisa dibuka');
+            }
+
+            $rinc = PembayaranHutangRinci::where('nopelunasan', $head->nopelunasan)->get();
+
+            if ($rinc->isNotEmpty()) {
+                // reset flag_hutang semua penerimaan terkait
+                Penerimaan_h::whereIn('nopenerimaan', $rinc->pluck('nopenerimaan'))
+                    ->update(['flag_hutang' => null]);
+            }
+
+            $head->update([
+                'flag' => '', // buka kunci
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Transaksi berhasil dibuka kuncinya',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Gagal membuka kunci: ' . $e->getMessage(),
+                'line' => $e->getLine(),
             ], 410);
         }
     }
