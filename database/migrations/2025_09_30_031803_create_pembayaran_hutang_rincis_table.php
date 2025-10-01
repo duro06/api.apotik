@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('noorder');
             $table->string('nopenerimaan');
             $table->string('nofaktur');
+            $table->string('kode_suplier');
             $table->decimal('nominal', 20, 2)->comment('subtotal penerimaan');
             $table->decimal('pajak', 20, 2)->comment('total pajak dalam rupiah');
             $table->decimal('diskon', 20, 2)->comment('total diskon dalam rupian');
