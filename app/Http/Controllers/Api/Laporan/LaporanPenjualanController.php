@@ -150,6 +150,8 @@ class LaporanPenjualanController extends Controller
             'total_penjualan' => (float) $grandTotals->total_subtotal - (float) $grandTotals->total_subtotal_retur,
             'total_hpp' => (float) $grandTotals->hpp,
             'total_diskon' => (float) $grandTotals->total_diskon,
+            'total_margin_keuntungan' => (float) $grandTotals->total_subtotal - (float) $grandTotals->total_subtotal_retur - (float) $grandTotals->hpp - (float) $grandTotals->total_diskon,
+
         ];
         return new JsonResponse($resp);
     }
