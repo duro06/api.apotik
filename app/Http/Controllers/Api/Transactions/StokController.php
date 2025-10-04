@@ -236,10 +236,12 @@ class StokController extends Controller
                         'penjualan_r_s.jumlah_k',
                         'penjualan_h_s.tgl_penjualan',
                         'penjualan_h_s.nopenjualan',
+                        'penjualan_h_s.kode_pelanggan',
                     )
                         ->leftJoin('penjualan_h_s', 'penjualan_h_s.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
                         ->whereBetween('penjualan_h_s.tgl_penjualan', [$awalBulan, $akhirBulan])
-                        ->whereNotNull('penjualan_h_s.flag');
+                        ->whereNotNull('penjualan_h_s.flag')
+                        ->with(['pelanggan:kode,nama']);
                 },
                 'returPenjualanRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
@@ -258,10 +260,12 @@ class StokController extends Controller
                         'penerimaan_rs.jumlah_k',
                         'penerimaan_hs.nopenerimaan',
                         'penerimaan_hs.tgl_penerimaan',
+                        'penerimaan_hs.kode_suplier',
                     )
                         ->leftJoin('penerimaan_hs', 'penerimaan_hs.nopenerimaan', '=', 'penerimaan_rs.nopenerimaan')
                         ->whereBetween('penerimaan_hs.tgl_penerimaan', [$awalBulan, $akhirBulan])
-                        ->whereNotNull('penerimaan_hs.flag');
+                        ->whereNotNull('penerimaan_hs.flag')
+                        ->with('suplier:kode,nama');
                 },
                 'ReturPembelianRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
