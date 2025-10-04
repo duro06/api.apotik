@@ -98,10 +98,13 @@ class LaporanPenjualanController extends Controller
                             'penjualan_r_s.satuan_k',
                             'penjualan_r_s.harga_jual',
                             'penjualan_r_s.harga_beli',
+                            'penjualan_r_s.diskon',
                             'penjualan_r_s.subtotal',
+                            DB::raw('((penjualan_r_s.jumlah_k*penjualan_r_s.harga_jual)-(penjualan_r_s.jumlah_k*penjualan_r_s.harga_beli)) as margin'),
+                            DB::raw('((penjualan_r_s.jumlah_k*penjualan_r_s.harga_jual)-(penjualan_r_s.jumlah_k*penjualan_r_s.harga_beli)-penjualan_r_s.diskon) as margin_diskon'),
                             DB::raw('COALESCE(retur_penjualan_rs.noretur, "") as noretur'),
                             DB::raw('COALESCE(retur_penjualan_rs.jumlah_k, 0) as retur'),
-                            DB::raw('COALESCE(retur_penjualan_rs.jumlah_k, 0) * COALESCE(retur_penjualan_rs.harga, 0) as subtotal_retur')
+                            DB::raw('COALESCE(retur_penjualan_rs.jumlah_k, 0) * COALESCE(retur_penjualan_rs.harga, 0) as subtotal_retur'),
                         )
                         ->leftJoin('retur_penjualan_rs', function ($q) {
                             $q->on('retur_penjualan_rs.nopenjualan', '=', 'penjualan_r_s.nopenjualan')
@@ -127,7 +130,9 @@ class LaporanPenjualanController extends Controller
         $grandTotals = (clone $raw)
             ->selectRaw('
             SUM(penjualan_r_s.subtotal) as total_subtotal,
-            SUM(COALESCE(retur_penjualan_rs.jumlah_k, 0) * COALESCE(retur_penjualan_rs.harga, 0)) as total_subtotal_retur
+            SUM(COALESCE(retur_penjualan_rs.jumlah_k, 0) * COALESCE(retur_penjualan_rs.harga, 0)) as total_subtotal_retur,
+            SUM(penjualan_r_s.jumlah_k*penjualan_r_s.harga_beli) as hpp,
+            SUM(penjualan_r_s.diskon) as total_diskon
         ')
             ->leftJoin('penjualan_r_s', 'penjualan_r_s.nopenjualan', '=', 'penjualan_h_s.nopenjualan')
             ->leftJoin('retur_penjualan_rs', function ($q) {
@@ -142,7 +147,9 @@ class LaporanPenjualanController extends Controller
         $resp['grand_total'] = [
             'total_subtotal' => (float) $grandTotals->total_subtotal,
             'total_subtotal_retur' => (float) $grandTotals->total_subtotal_retur,
-            'total_penjualan' => (float) $grandTotals->total_subtotal - (float) $grandTotals->total_subtotal_retur
+            'total_penjualan' => (float) $grandTotals->total_subtotal - (float) $grandTotals->total_subtotal_retur,
+            'total_hpp' => (float) $grandTotals->hpp,
+            'total_diskon' => (float) $grandTotals->total_diskon,
         ];
         return new JsonResponse($resp);
     }
