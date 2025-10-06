@@ -101,7 +101,10 @@ class PembayaranHutangController extends Controller
             ->leftJoin('penerimaan_rs as r', 'r.nopenerimaan', '=', 'penerimaan_hs.nopenerimaan')
             ->where('penerimaan_hs.hutang', 'HUTANG')
             ->where('penerimaan_hs.nopenerimaan', request('q'))
-            ->with('rincian.barang:nama,kode,satuan_k,satuan_b,isi')
+            ->with([
+                'rincian.barang:nama,kode,satuan_k,satuan_b,isi',
+                'suplier:kode,nama'
+            ])
             ->groupBy('penerimaan_hs.nopenerimaan', 'penerimaan_hs.noorder', 'penerimaan_hs.nofaktur', 'penerimaan_hs.kode_suplier')
             ->first();
 
