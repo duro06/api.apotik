@@ -250,8 +250,8 @@ class PenjualanController extends Controller
 
             // hitung Subtotal
             $subtotal = PenjualanR::where('nopenjualan', $data->nopenjualan)->sum('subtotal');
+            $diskon = PenjualanR::where('nopenjualan', $data->nopenjualan)->sum('diskon');
 
-            $diskon = $validated['diskon'] ?? 0;
             $kembali = $validated['kembali'] ?? 0;
             $jumlahBayar = $validated['jumlah_bayar'] ?? 0;
             // tentkan jumlah pembayran jika ada diskon dan tidak
