@@ -9,6 +9,7 @@ Route::group([
   'prefix' => 'transactions/pembayaran-hutang'
 ], function () {
   Route::get('/get-list', [PembayaranHutangController::class, 'index']);
+  Route::get('/get-one-hutang', [PembayaranHutangController::class, 'getOneHutang']);
   Route::get('/get-hutang', [PembayaranHutangController::class, 'getHutang']);
   Route::post('/simpan', [PembayaranHutangController::class, 'simpan']);
   Route::post('/kunci', [PembayaranHutangController::class, 'kunci']);

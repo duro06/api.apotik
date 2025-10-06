@@ -71,6 +71,7 @@ class PembayaranHutangController extends Controller
             ->whereBetween('penerimaan_hs.tgl_penerimaan', [$req['from'], $req['to']])
             ->where('penerimaan_hs.hutang', 'HUTANG')
             ->whereNull('flag_hutang')
+            ->where('penerimaan_hs.nopenerimaan', 'LIKE', '%' . request('q') . '%')
             ->with('rincian.barang:nama,kode,satuan_k,satuan_b,isi')
             ->groupBy('penerimaan_hs.nopenerimaan', 'penerimaan_hs.noorder', 'penerimaan_hs.nofaktur', 'penerimaan_hs.kode_suplier');
         $totalCount = (clone $raw)->count();
@@ -82,6 +83,30 @@ class PembayaranHutangController extends Controller
         //     'req' => $req,
         // ]);
         return new JsonResponse($resp);
+    }
+    public function getOneHutang()
+    {
+
+        $data['data'] = Penerimaan_h::query()->select(
+            'penerimaan_hs.nopenerimaan',
+            'penerimaan_hs.noorder',
+            'penerimaan_hs.nofaktur',
+            'penerimaan_hs.kode_suplier',
+            DB::raw('sum(r.jumlah_k*pajak_rupiah) as pajak'),
+            DB::raw('sum(r.jumlah_k*diskon_rupiah) as diskon'),
+            DB::raw('sum(r.jumlah_k*harga) as nominal'),
+            DB::raw('sum(r.jumlah_k*harga_total) as nominal_total'),
+            DB::raw('sum(r.subtotal) as total'),
+        )
+            ->leftJoin('penerimaan_rs as r', 'r.nopenerimaan', '=', 'penerimaan_hs.nopenerimaan')
+            ->where('penerimaan_hs.hutang', 'HUTANG')
+            ->where('penerimaan_hs.nopenerimaan', request('q'))
+            ->with('rincian.barang:nama,kode,satuan_k,satuan_b,isi')
+            ->groupBy('penerimaan_hs.nopenerimaan', 'penerimaan_hs.noorder', 'penerimaan_hs.nofaktur', 'penerimaan_hs.kode_suplier')
+            ->first();
+
+
+        return new JsonResponse($data);
     }
     public function simpan(Request $request)
     {
