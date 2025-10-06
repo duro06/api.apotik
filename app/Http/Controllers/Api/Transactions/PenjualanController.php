@@ -169,7 +169,7 @@ class PenjualanController extends Controller
                 $nopenjualan = $request->nopenjualan;
             }
             $jumlahB = floor($validated['jumlah_k'] / $validated['isi']);
-            $subtotal = $validated['jumlah_k'] * $validated['harga_jual'];
+            $subtotal = ($validated['jumlah_k'] * $validated['harga_jual']) - ($validated['diskon'] ?? 0);
             $data = PenjualanH::updateOrCreate([
                 'nopenjualan' => $nopenjualan
             ], [
@@ -255,8 +255,9 @@ class PenjualanController extends Controller
             $kembali = $validated['kembali'] ?? 0;
             $jumlahBayar = $validated['jumlah_bayar'] ?? 0;
             // tentkan jumlah pembayran jika ada diskon dan tidak
-            if ($diskon > 0) $nilaiBayar = (int)$subtotal - (int)$diskon;
-            else $nilaiBayar = (int)$subtotal;
+            // if ($diskon > 0) $nilaiBayar = (int)$subtotal - (int)$diskon;
+            // else $nilaiBayar = (int)$subtotal;
+            $nilaiBayar = (int)$subtotal;
             // validasi jumlah pembayaran
             if ((int)$jumlahBayar < (int)$nilaiBayar) {
                 throw new Exception('Jumlah Pembayaran kurang, minimal ' . $nilaiBayar);

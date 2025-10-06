@@ -116,6 +116,7 @@ class LaporanPenjualanController extends Controller
                 'pelanggan',
                 'dokter',
             ])
+            ->whereNotNull('flag')
             // ->orderBy($req['order_by'], $req['sort']);
             ->orderBy("penjualan_h_s.$orderBy", $req['sort']);
         $totalCount = (clone $raw)->count();
