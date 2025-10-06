@@ -106,7 +106,7 @@ class PembayaranHutangController extends Controller
                 'suplier:kode,nama'
             ])
             ->groupBy('penerimaan_hs.nopenerimaan', 'penerimaan_hs.noorder', 'penerimaan_hs.nofaktur', 'penerimaan_hs.kode_suplier')
-            ->first();
+            ->get();
 
 
         return new JsonResponse($data);
