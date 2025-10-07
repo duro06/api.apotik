@@ -221,9 +221,13 @@ class PembayaranHutangController extends Controller
                 'total_dibayar' => $tot ?? 0,
                 'flag' => '1',
             ]);
+            $head->load([
+                'rinci'
+            ]);
             DB::commit();
             return new JsonResponse([
                 'message' => 'Data berhasil dikunci',
+                'data' => $head
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
