@@ -35,10 +35,10 @@ class DasboardController extends Controller
                 $req['from'] . ' 00:00:00',
                 $req['to'] . ' 23:59:59'
             ])
-            ->when(request('q'), function ($q) {
-                $q->where('barangs.nama', 'like', '%' . request('q') . '%')
-                ->orWhere('barangs.kode', 'like', '%' . request('q') . '%');
-            })
+            // ->when(request('q'), function ($q) {
+            //     $q->where('barangs.nama', 'like', '%' . request('q') . '%')
+            //     ->orWhere('barangs.kode', 'like', '%' . request('q') . '%');
+            // })
             ->groupBy('penjualan_r_s.kode_barang', 'barangs.kode', 'barangs.nama')
             ->orderByRaw('(SUM(penjualan_r_s.jumlah_k) - IFNULL(SUM(retur_penjualan_rs.jumlah_k), 0)) DESC')
             ->limit(5)
