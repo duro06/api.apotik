@@ -156,10 +156,12 @@ class PenerimaanController extends Controller
             $diskon_rupiah = 0;
             $harga_k = $validated['harga_b'] / $validated['isi'];
             // $harga_k = $request->harga / $validated['jumlah_k'];
+            $harga_setelah_diskon = $harga_k;
             if (isset($validated['diskon_persen'])) {
                 $diskon_rupiah = $harga_k * ($validated['diskon_persen'] / 100);
+                $harga_setelah_diskon = $harga_k - $diskon_rupiah;
             }
-            $harga_setelah_diskon = $harga_k - $diskon_rupiah;
+
 
             if($validated['jenispajak'] === 'Exclude'){
                 $pajak_rupiah = $harga_setelah_diskon * ($validated['pajak'] / 100);
