@@ -156,11 +156,13 @@ class PenerimaanController extends Controller
             $diskon_rupiah = 0;
             $harga_k = $validated['harga_b'] / $validated['isi'];
             // $harga_k = $request->harga / $validated['jumlah_k'];
-            if($validated['jenispajak'] === 'Exclude'){
-                $pajak_rupiah = $harga_k * ($validated['pajak'] / 100);
-            }
             if (isset($validated['diskon_persen'])) {
                 $diskon_rupiah = $harga_k * ($validated['diskon_persen'] / 100);
+            }
+            $harga_setelah_diskon = $harga_k - $diskon_rupiah;
+
+            if($validated['jenispajak'] === 'Exclude'){
+                $pajak_rupiah = $harga_setelah_diskon * ($validated['pajak'] / 100);
             }
 
             $harga_total = $harga_k + $pajak_rupiah - $diskon_rupiah;
@@ -183,6 +185,7 @@ class PenerimaanController extends Controller
                     'pajak_rupiah' => $pajak_rupiah,
                     'diskon_persen' => $validated['diskon_persen'],
                     'diskon_rupiah' => $diskon_rupiah,
+                    'harga_setelahdiskon' => $harga_setelah_diskon,
                     'harga_total' => $harga_total,
                     'subtotal' =>  $subtotal,
                     'kode_user' => $user->kode
