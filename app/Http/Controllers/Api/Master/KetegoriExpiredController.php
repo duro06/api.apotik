@@ -22,8 +22,10 @@ class KetegoriExpiredController extends Controller
         ];
         $raw = KategoriExpired::query();
         $raw->when(request('q'), function ($q) {
-            $q->where('nama', 'like', '%' . request('q') . '%')
-                ->orWhere('kode', 'like', '%' . request('q') . '%');
+            $q->where(function ($y) {
+                $y->where('nama', 'like', '%' . request('q') . '%')
+                    ->orWhere('kode', 'like', '%' . request('q') . '%');
+            });
         })
             ->orderBy($req['order_by'], $req['sort']);
         $totalCount = (clone $raw)->count();
