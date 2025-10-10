@@ -123,6 +123,7 @@ class PenjualanController extends Controller
     public function simpan(Request $request): JsonResponse
     {
         $nomorPen = $request->nopenjualan;
+
         $validated = $request->validate([
 
             'tgl_penjualan' => 'nullable',
@@ -166,6 +167,8 @@ class PenjualanController extends Controller
                 $nopenjualan = FormatingHelper::genKodeBarang($nomor->nopenjualan, 'TRX');
             } else {
                 $nopenjualan = $request->nopenjualan;
+                $penj = PenjualanH::where('nopenjualan', $nopenjualan)->whereNotNull('flag')->first();
+                if ($penj) throw new Exception('Penjualan sudah dibayar');
             }
             $jumlahB = floor($validated['jumlah_k'] / $validated['isi']);
             $subtotal = ($validated['jumlah_k'] * $validated['harga_jual']) - ($validated['diskon'] ?? 0);
