@@ -118,4 +118,137 @@ class DasboardController extends Controller
 
         return new JsonResponse($data);
     }
+    public function penjualanPembelianHarian()
+    {
+        $penj = $this->laporanPenjualanHarian();
+        $pem = $this->laporanPenerimaanHarian();
+        return new JsonResponse([
+            'penjualan' => $penj,
+            'pembelian' => $pem,
+        ]);
+    }
+    private function laporanPenjualanHarian()
+    {
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+
+        // --- 1️⃣ TOTAL PENJUALAN (dari detail subtotal)
+        $totalHariIni = DB::table('penjualan_r_s as r')
+            ->join('penjualan_h_s as h', 'h.nopenjualan', '=', 'r.nopenjualan')
+            ->whereDate('h.tgl_penjualan', $today)
+            ->sum('r.subtotal');
+
+        $totalKemarin = DB::table('penjualan_r_s as r')
+            ->join('penjualan_h_s as h', 'h.nopenjualan', '=', 'r.nopenjualan')
+            ->whereDate('h.tgl_penjualan', $yesterday)
+            ->sum('r.subtotal');
+
+        // hitung perubahan total penjualan
+        [$statusTotal, $persenTotal] = $this->hitungPerubahan($totalHariIni, $totalKemarin);
+
+        // --- 2️⃣ JUMLAH TRANSAKSI (dari header)
+        $transaksiHariIni = DB::table('penjualan_h_s')
+            ->whereDate('tgl_penjualan', $today)
+            ->count();
+
+        $transaksiKemarin = DB::table('penjualan_h_s')
+            ->whereDate('tgl_penjualan', $yesterday)
+            ->count();
+
+        // hitung perubahan jumlah transaksi
+        [$statusTransaksi, $persenTransaksi] = $this->hitungPerubahan($transaksiHariIni, $transaksiKemarin);
+
+        // --- 3️⃣ Hasil akhir
+        $result = [
+            'total_penjualan' => [
+                'tanggal' => $today->toDateString(),
+                'hari_ini' => (float) $totalHariIni,
+                'kemarin' => (float) $totalKemarin,
+                'persentase_perubahan' => $persenTotal,
+                'status' => $statusTotal,
+            ],
+            'jumlah_transaksi' => [
+                'tanggal' => $today->toDateString(),
+                'hari_ini' => $transaksiHariIni,
+                'kemarin' => $transaksiKemarin,
+                'persentase_perubahan' => $persenTransaksi,
+                'status' => $statusTransaksi,
+            ],
+        ];
+
+        return $result;
+    }
+    private function laporanPenerimaanHarian()
+    {
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+
+        // --- 1️⃣ TOTAL NOMINAL PENERIMAAN
+        $totalHariIni = DB::table('penerimaan_rs as r')
+            ->join('penerimaan_hs as h', 'h.nopenerimaan', '=', 'r.nopenerimaan')
+            ->whereDate('h.tgl_penerimaan', $today)
+            ->sum('r.subtotal');
+
+        $totalKemarin = DB::table('penerimaan_rs as r')
+            ->join('penerimaan_hs as h', 'h.nopenerimaan', '=', 'r.nopenerimaan')
+            ->whereDate('h.tgl_penerimaan', $yesterday)
+            ->sum('r.subtotal');
+
+        [$statusTotal, $persenTotal] = $this->hitungPerubahan($totalHariIni, $totalKemarin);
+
+        // --- 2️⃣ JUMLAH TRANSAKSI PENERIMAAN
+        $transaksiHariIni = DB::table('penerimaan_hs')
+            ->whereDate('tgl_penerimaan', $today)
+            ->count();
+
+        $transaksiKemarin = DB::table('penerimaan_hs')
+            ->whereDate('tgl_penerimaan', $yesterday)
+            ->count();
+
+        [$statusTransaksi, $persenTransaksi] = $this->hitungPerubahan($transaksiHariIni, $transaksiKemarin);
+
+        // --- 3️⃣ HASIL AKHIR
+        $result = [
+            'total_penerimaan' => [
+                'tanggal' => $today->toDateString(),
+                'hari_ini' => (float) $totalHariIni,
+                'kemarin' => (float) $totalKemarin,
+                'persentase_perubahan' => $persenTotal,
+                'status' => $statusTotal,
+            ],
+            'jumlah_transaksi' => [
+                'tanggal' => $today->toDateString(),
+                'hari_ini' => $transaksiHariIni,
+                'kemarin' => $transaksiKemarin,
+                'persentase_perubahan' => $persenTransaksi,
+                'status' => $statusTransaksi,
+            ],
+        ];
+
+        return $result;
+    }
+    /**
+     * Helper untuk hitung perubahan dan status
+     */
+    private function hitungPerubahan($hariIni, $kemarin)
+    {
+        $status = 'tetap';
+        $persentase = 0;
+
+        if ($kemarin > 0) {
+            $selisih = $hariIni - $kemarin;
+            $persentase = ($selisih / $kemarin) * 100;
+
+            if ($selisih > 0) {
+                $status = 'naik';
+            } elseif ($selisih < 0) {
+                $status = 'turun';
+            }
+        } elseif ($hariIni > 0 && $kemarin == 0) {
+            $status = 'naik';
+            $persentase = 100;
+        }
+
+        return [$status, round($persentase, 2)];
+    }
 }

@@ -11,4 +11,5 @@ Route::group([
   Route::get('/fasmoving', [DasboardController::class, 'fasmoving']);
   Route::get('/toppbf', [DasboardController::class, 'toppbf']);
   Route::get('/pen-pem-pbl', [DasboardController::class, 'penjualanPembelianPerbulanTahunIni']);
+  Route::get('/pen-pem-harian', [DasboardController::class, 'penjualanPembelianHarian']);
 });
