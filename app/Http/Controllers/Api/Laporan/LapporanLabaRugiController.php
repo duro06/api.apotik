@@ -6,6 +6,7 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Master\Beban;
 use App\Models\Transactions\Beban_h;
+use App\Models\Transactions\Pendapatanlain_h;
 use App\Models\Transactions\PenjualanH;
 use App\Models\Transactions\ReturPenjualan_h;
 use Illuminate\Http\JsonResponse;
@@ -49,6 +50,13 @@ class LapporanLabaRugiController extends Controller
             }
         ], 'subtotal')
             ->get();
+        $pendapatanlain = Pendapatanlain_h::withSum([
+            'rincian as subtotal' => function ($q) use ($req) {
+                $q->whereBetween('pendapatanlain_h.tgl', [$req['from'], $req['to']])
+                    ->whereNotNull('pendapatanlain_h.kunci');
+            }
+        ], 'nilai')
+            ->get();
         // $beban = Beban_h::when($req['from'] && $req['to'], function ($q) use ($req) {
         //     $q->whereBetween('created_at', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59']);
         // })->withSum('rincian', 'subtotal')
@@ -70,6 +78,7 @@ class LapporanLabaRugiController extends Controller
         $totalReturPenjualan = (int)$returPenjualan->sum('retur_penjualan_r_sum_jumlah_k_harga');
         $hppReturPenjualan = (int)$returPenjualan->sum('retur_penjualan_r_sum_jumlah_k_harga_beli');
         $totalbeban = (int)$beban->sum('subtotal');
+        $totalPendapatanLain = (int)$pendapatanlain->sum('subtotal');;
         $penjualanBersih = $totalPenjualan - $totalReturPenjualan;
         $hppPenjualanBersih = $hppPenjualan - $hppReturPenjualan;
         $labaKotor = $penjualanBersih - $hppPenjualanBersih;
@@ -82,6 +91,7 @@ class LapporanLabaRugiController extends Controller
         $data['hppReturPenjualan'] = $hppReturPenjualan;
         $data['totalReturPenjualan'] = $totalReturPenjualan;
         $data['totalbeban'] = $totalbeban;
+        $data['totalPendapatanLain'] = $totalPendapatanLain;
         $data['penjualanBersih'] = $penjualanBersih;
         $data['labaKotor'] = $labaKotor;
         $data['labaBersih'] = $labaBersih;
@@ -89,6 +99,7 @@ class LapporanLabaRugiController extends Controller
         $data['rincianPenjualan'] = $penjualan;
         $data['rincianReturPenjualan'] = $returPenjualan;
         $data['rincianbeban'] = $beban;
+        $data['rincianPendapatanLain'] = $pendapatanlain;
 
         return new JsonResponse(['data' => $data]);
     }
