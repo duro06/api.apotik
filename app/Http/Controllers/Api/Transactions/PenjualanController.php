@@ -25,14 +25,16 @@ class PenjualanController extends Controller
             'order_by' => request('order_by') ?? 'nama',
             'sort' => request('sort') ?? 'asc',
             'page' => request('page') ?? 1,
-            'per_page' => request('per_page') ?? 10,
+            'per_page' => request('per_page') ?? 30,
         ];
         $limitHargaTertinggi = 5;
 
         // tambah penjualan yang belum selesai -- ibarat alokasi... maping di front
         $data = Barang::when(request('q'), function ($q) {
-            $q->where('nama', 'like', '%' . request('q') . '%')
-                ->orWhere('kode', 'like', '%' . request('q') . '%');
+            $q->where(function ($y) {
+                $y->where('nama', 'like', '%' . request('q') . '%')
+                    ->orWhere('kode', 'like', '%' . request('q') . '%');
+            });
         })
             ->with([
                 'stok' => function ($q) {
@@ -62,6 +64,7 @@ class PenjualanController extends Controller
             ])
             ->orderBy($req['order_by'], $req['sort'])
             ->limit($req['per_page'])
+            ->whereNull('hidden')
             ->get();
 
         $stokIds = $data->pluck('harga_tertinggi_ids')
