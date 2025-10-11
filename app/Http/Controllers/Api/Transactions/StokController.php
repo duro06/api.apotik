@@ -122,8 +122,10 @@ class StokController extends Controller
         // ]);
         $raw = Barang::query();
         $raw->when(request('q'), function ($q) {
-            $q->where('nama', 'like', '%' . request('q') . '%')
-                ->orWhere('kode', 'like', '%' . request('q') . '%');
+            $q->where(function ($y) {
+                $y->where('nama', 'like', '%' . request('q') . '%')
+                    ->orWhere('kode', 'like', '%' . request('q') . '%');
+            });
         })
             ->with([
                 'stokAwal' => function ($q) use ($lastMonth) {
