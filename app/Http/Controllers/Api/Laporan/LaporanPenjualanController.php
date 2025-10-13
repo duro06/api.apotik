@@ -100,7 +100,7 @@ class LaporanPenjualanController extends Controller
                             'penjualan_r_s.harga_beli',
                             'penjualan_r_s.diskon',
                             'penjualan_r_s.subtotal',
-                            DB::raw('((penjualan_r_s.jumlah_k*penjualan_r_s.harga_jual)-(penjualan_r_s.jumlah_k*penjualan_r_s.harga_beli)) as margin'),
+                            DB::raw('(penjualan_r_s.harga_jual - penjualan_r_s.harga_beli) as margin'),
                             DB::raw('((penjualan_r_s.jumlah_k*penjualan_r_s.harga_jual)-(penjualan_r_s.jumlah_k*penjualan_r_s.harga_beli)-penjualan_r_s.diskon) as margin_diskon'),
                             DB::raw('COALESCE(retur_penjualan_rs.noretur, "") as noretur'),
                             DB::raw('COALESCE(retur_penjualan_rs.jumlah_k, 0) as retur'),
