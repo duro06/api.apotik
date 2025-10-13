@@ -236,6 +236,7 @@ class StokController extends Controller
                     $q->select(
                         'penjualan_r_s.kode_barang',
                         'penjualan_r_s.jumlah_k',
+                        'penjualan_r_s.harga_beli',
                         'penjualan_h_s.tgl_penjualan',
                         'penjualan_h_s.nopenjualan',
                         'penjualan_h_s.kode_pelanggan',
@@ -249,6 +250,7 @@ class StokController extends Controller
                     $q->select(
                         'retur_penjualan_rs.kode_barang',
                         'retur_penjualan_rs.jumlah_k',
+                        'retur_penjualan_rs.harga_beli',
                         'retur_penjualan_hs.tgl_retur',
                         'retur_penjualan_hs.noretur',
                     )
@@ -260,6 +262,7 @@ class StokController extends Controller
                     $q->select(
                         'penerimaan_rs.kode_barang',
                         'penerimaan_rs.jumlah_k',
+                        'penerimaan_rs.harga_total as harga_beli',
                         'penerimaan_hs.nopenerimaan',
                         'penerimaan_hs.tgl_penerimaan',
                         'penerimaan_hs.kode_suplier',
@@ -272,6 +275,7 @@ class StokController extends Controller
                 'ReturPembelianRinci' => function ($q) use ($awalBulan, $akhirBulan) {
                     $q->select(
                         'retur_pembelian_rs.kode_barang',
+                        'retur_pembelian_rs.harga_total as harga_beli',
                         'retur_pembelian_rs.jumlahretur_k as jumlah_k',
                         'retur_pembelian_hs.noretur',
                         'retur_pembelian_hs.tglretur',
