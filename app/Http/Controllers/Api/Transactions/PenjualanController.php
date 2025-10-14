@@ -30,12 +30,13 @@ class PenjualanController extends Controller
         $limitHargaTertinggi = 5;
 
         // tambah penjualan yang belum selesai -- ibarat alokasi... maping di front
-        $data = Barang::when(request('q'), function ($q) {
-            $q->where(function ($y) {
-                $y->where('nama', 'like', '%' . request('q') . '%')
-                    ->orWhere('kode', 'like', '%' . request('q') . '%');
-            });
-        })
+        $data = Barang::select('barangs.*')
+            ->when(request('q'), function ($q) {
+                $q->where(function ($y) {
+                    $y->where('nama', 'like', '%' . request('q') . '%')
+                        ->orWhere('kode', 'like', '%' . request('q') . '%');
+                });
+            })
             ->with([
                 'stok' => function ($q) {
                     $q->where('jumlah_k', '>', 0);
@@ -62,6 +63,9 @@ class PenjualanController extends Controller
             ")
                     ->whereColumn('stoks.kode_barang', '=', 'barangs.kode')
             ])
+            ->leftJoin('stoks', 'stoks.kode_barang', '=', 'barangs.kode')
+            ->where('jumlah_k', '>', 0)
+            ->groupBy('barangs.kode')
             ->orderBy($req['order_by'], $req['sort'])
             ->limit($req['per_page'])
             ->whereNull('hidden')
