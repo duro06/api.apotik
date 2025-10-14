@@ -82,7 +82,7 @@ class LapporanLabaRugiController extends Controller
         $penjualanBersih = $totalPenjualan - $totalReturPenjualan;
         $hppPenjualanBersih = $hppPenjualan - $hppReturPenjualan;
         $labaKotor = $penjualanBersih - $hppPenjualanBersih;
-        $labaBersih = $labaKotor - $totalbeban;
+        $labaBersih = $labaKotor - $totalbeban + $totalPendapatanLain;
 
 
         $data['hppPenjualanBersih'] = $hppPenjualanBersih;
