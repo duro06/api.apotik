@@ -44,12 +44,20 @@ services:
         networks:
             - harrynet
         command: >
-            bash -c "
-            echo 'Menunggu sistem siap...';
-            sleep 25;
-            echo 'Menjalankan MySQL';
-            exec docker-entrypoint.sh mysqld
-            "
+            bash -c '
+            echo "Menunggu volume /var/lib/mysql siap...";
+            for i in {1..20}; do
+                if [ -d /var/lib/mysql ]; then
+                    echo "Volume siap, mulai MySQL";
+                    exec docker-entrypoint.sh mysqld;
+                else
+                    echo "Volume belum siap ($i/20)";
+                    sleep 5;
+                fi;
+            done;
+            echo "Volume tidak siap, keluar";
+            exit 1
+            '
         healthcheck:
             test:
                 [
