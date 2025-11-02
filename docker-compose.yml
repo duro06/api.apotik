@@ -32,7 +32,7 @@ services:
         image: mysql/mysql-server:5.7
         platform: linux/amd64
         container_name: mysql_apotik
-        restart: always
+        restart: unless-stopped
         environment:
             MYSQL_DATABASE: ${DB_DATABASE:-local_laravel}
             MYSQL_USER: ${DB_USERNAME:-local_developer}
