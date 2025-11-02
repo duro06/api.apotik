@@ -27,7 +27,7 @@ services:
                 condition: service_started
 
     db:
-        image: mysql/mysql-server:5.7
+        image: mysql:5.7
         platform: linux/amd64
         container_name: mysql_apotik
         restart: unless-stopped
