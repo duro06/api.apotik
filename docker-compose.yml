@@ -43,16 +43,23 @@ services:
             - ./docker-compose/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
         networks:
             - harrynet
+        command: >
+            bash -c "
+            echo 'Menunggu sistem siap...';
+            sleep 25;
+            echo 'Menjalankan MySQL';
+            exec docker-entrypoint.sh mysqld
+            "
         healthcheck:
             test:
                 [
                     "CMD-SHELL",
-                    "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}",
+                    "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} || exit 1",
                 ]
             interval: 15s
             timeout: 10s
             retries: 15
-            start_period: 40s
+            start_period: 60s
 
     nginx:
         image: nginx:alpine
