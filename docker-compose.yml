@@ -39,7 +39,7 @@ services:
             - ./docker-compose/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
         networks:
             - harrynet
-        command: ["sh", "-c", "sleep 10 && docker-entrypoint.sh mysqld"]
+        command: ["sh", "-c", "sleep 10 && exec /entrypoint.sh mysqld"]
         healthcheck:
             test:
                 [
