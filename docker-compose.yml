@@ -26,7 +26,7 @@ services:
         image: mysql/mysql-server:5.7
         platform: linux/amd64
         container_name: mysql_apotik
-        restart: unless-stopped
+        restart: always
         environment:
             MYSQL_DATABASE: ${DB_DATABASE:-local_laravel}
             MYSQL_USER: ${DB_USERNAME:-local_developer}
@@ -39,15 +39,17 @@ services:
             - ./docker-compose/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
         networks:
             - harrynet
+        command: ["sh", "-c", "sleep 10 && docker-entrypoint.sh mysqld"]
         healthcheck:
             test:
                 [
                     "CMD-SHELL",
                     "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}",
                 ]
-            interval: 10s
-            timeout: 5s
-            retries: 10
+            interval: 15s
+            timeout: 10s
+            retries: 15
+            start_period: 40s
 
     nginx:
         image: nginx:alpine
