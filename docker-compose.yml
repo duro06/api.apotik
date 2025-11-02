@@ -43,31 +43,21 @@ services:
             - ./docker-compose/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
         networks:
             - harrynet
-        command: >
-            bash -c '
-            echo "Menunggu volume /var/lib/mysql siap...";
-            for i in {1..20}; do
-                if [ -d /var/lib/mysql ]; then
-                    echo "Volume siap, mulai MySQL";
-                    exec docker-entrypoint.sh mysqld;
-                else
-                    echo "Volume belum siap ($i/20)";
-                    sleep 5;
-                fi;
-            done;
-            echo "Volume tidak siap, keluar";
-            exit 1
-            '
         healthcheck:
             test:
                 [
-                    "CMD-SHELL",
-                    "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} || exit 1",
+                    "CMD",
+                    "mysqladmin",
+                    "ping",
+                    "-h",
+                    "localhost",
+                    "-uroot",
+                    "-p${DB_PASSWORD:-secret}",
                 ]
             interval: 15s
             timeout: 10s
             retries: 15
-            start_period: 60s
+            start_period: 40s
 
     nginx:
         image: nginx:alpine
