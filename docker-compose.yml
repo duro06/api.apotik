@@ -25,12 +25,18 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_started
+        healthcheck:
+            test: ["CMD-SHELL", "php -v || exit 1"]
+            interval: 20s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
 
     db:
         image: mysql:5.7
         platform: linux/amd64
         container_name: mysql_apotik
-        restart: always
+        restart: unless-stopped
         environment:
             MYSQL_DATABASE: ${DB_DATABASE:-local_laravel}
             MYSQL_USER: ${DB_USERNAME:-local_developer}
@@ -40,7 +46,7 @@ services:
             - "3355:3306"
         volumes:
             - mysql_data:/var/lib/mysql
-            - ./docker-compose/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+            # - ./docker-compose/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
         networks:
             - harrynet
         healthcheck:
@@ -64,7 +70,9 @@ services:
         container_name: nginx_apotik
         restart: unless-stopped
         depends_on:
-            - app
+            # - app
+            app:
+                condition: service_healthy
 
         ports:
             # - "8182:80"
@@ -77,9 +85,9 @@ services:
         healthcheck:
             test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
             interval: 10s
-            timeout: 5s
-            retries: 5
-            start_period: 30s
+            timeout: 10s
+            retries: 15
+            start_period: 90s
 
     redis:
         image: redis:7
