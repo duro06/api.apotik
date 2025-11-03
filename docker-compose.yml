@@ -78,9 +78,10 @@ services:
             # - "8182:80"
             - "8185:80"
         volumes:
-            - ./:/var/www
+            # - ./:/var/www
             # - ./docker-compose/nginx:/etc/nginx/conf.d
             # khusus di sunan ampel
+            - /home/kentang/APP/api.apotik:/var/www
             - /home/kentang/APP/api.apotik/docker-compose/nginx:/etc/nginx/conf.d
         networks:
             - harrynet
