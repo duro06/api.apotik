@@ -1,2 +1,9 @@
 FROM nginx:alpine
-COPY default.conf /etc/nginx/conf.d/default.conf
+
+COPY . /etc/nginx/conf.d
+
+# Copy entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
