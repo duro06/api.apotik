@@ -68,7 +68,7 @@ services:
     nginx:
         build:
             context: ./docker-compose/nginx
-            dockerfile: Dockerfile.nginx
+            dockerfile: Dockerfile.khs
         image: apotik-nginx
         container_name: nginx_apotik
         restart: unless-stopped
