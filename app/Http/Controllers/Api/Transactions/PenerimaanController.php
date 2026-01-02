@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Transactions;
 use App\Helpers\Formating\FormatingHelper;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Transactions\OrderHeader;
 use App\Models\Transactions\Penerimaan_h;
 use App\Models\Transactions\Penerimaan_r;
 use App\Models\Transactions\Stok;
@@ -30,8 +31,8 @@ class PenerimaanController extends Controller
             ->when(request('q'), function ($q) {
                 $q->where(function ($query) {
                     $query->where('penerimaan_hs.nopenerimaan', 'like', '%' . request('q') . '%')
-                            ->orWhere('penerimaan_hs.noorder', 'like', '%' . request('q') . '%')
-                            ->orWhere('suppliers.nama', 'like', '%' . request('q') . '%');
+                        ->orWhere('penerimaan_hs.noorder', 'like', '%' . request('q') . '%')
+                        ->orWhere('suppliers.nama', 'like', '%' . request('q') . '%');
                 });
             })
             ->with([
@@ -42,6 +43,45 @@ class PenerimaanController extends Controller
             ])
             ->select('penerimaan_hs.*')
             ->orderBy($req['order_by'], $req['sort']);
+        $totalCount = (clone $query)->count();
+        $data = $query->simplePaginate($req['per_page']);
+
+        $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
+        return new JsonResponse($resp);
+    }
+
+    public function cariOrder()
+    {
+
+        $req = [
+            'order_by' => request('order_by', 'created_at'),
+            'sort' => request('sort', 'asc'),
+            'page' => request('page', 1),
+            'from' => request('from'),
+            'to' => request('to'),
+            'flag' => request('flag'),
+            'per_page' => request('per_page', 10),
+        ];
+
+        $query = OrderHeader::query()
+            ->select('order_headers.*')
+            ->leftJoin('penerimaan_hs', 'penerimaan_hs.noorder', '=', 'order_headers.nomor_order')
+            ->when(request('q'), function ($q) {
+                $q->leftJoin('suppliers', 'order_headers.kode_supplier', '=', 'suppliers.kode')
+                    ->where(function ($query) {
+                        $query->where('nomor_order', 'like', '%' . request('q') . '%')
+                            ->orWhere('kode_user', 'like', '%' . request('q') . '%')
+                            ->orWhere('suppliers.nama', 'LIKE', '%' . request('q') . '%');
+                    });
+            })
+            ->whereNotNull('order_headers.flag')
+            ->whereNull('penerimaan_hs.noorder')
+            ->with([
+                'orderRecords.master:nama,kode,satuan_k,satuan_b,isi,kandungan',
+                'supplier',
+                'penerimaan.rincian'
+            ])
+            ->orderBy('order_headers.' . $req['order_by'], $req['sort']);
         $totalCount = (clone $query)->count();
         $data = $query->simplePaginate($req['per_page']);
 
@@ -163,7 +203,7 @@ class PenerimaanController extends Controller
             }
 
 
-            if($validated['jenispajak'] === 'Exclude'){
+            if ($validated['jenispajak'] === 'Exclude') {
                 $pajak_rupiah = $harga_setelah_diskon * ($validated['pajak'] / 100);
             }
 
@@ -225,7 +265,6 @@ class PenerimaanController extends Controller
 
             ], 410);
         }
-
     }
 
     public function hapus(Request $request)
@@ -282,43 +321,43 @@ class PenerimaanController extends Controller
 
         try {
             DB::beginTransaction();
-                $existingHeader->update(['flag' => '1']);
+            $existingHeader->update(['flag' => '1']);
 
-                $user = Auth::user();
-                $requestData = $request->payload;
-                foreach ($requestData as $key => $value) {
+            $user = Auth::user();
+            $requestData = $request->payload;
+            foreach ($requestData as $key => $value) {
                 Stok::create(
-                        [
-                            'nopenerimaan' => $value['nopenerimaan'],
-                            'noorder' => $value['noorder'],
-                            'kode_barang' => $value['kode_barang'],
-                            'nobatch' => $value['nobatch'],
-                            'id_penerimaan_rinci' => $value['id_penerimaan_rinci'],
-                            'isi' => $value['isi'],
-                            'satuan_b' => $value['satuan_b'],
-                            'satuan_k' => $value['satuan_k'],
-                            'jumlah_b' => $value['jumlah_b'],
-                            'jumlah_k' => $value['jumlah_k'],
-                            'harga' => $value['harga'],
-                            'pajak_rupiah' => $value['pajak_rupiah'],
-                            'diskon_persen' => $value['diskon_persen'],
-                            'diskon_rupiah' => $value['diskon_rupiah'],
-                            'harga_total' => $value['harga_total'],
-                            'subtotal' => $value['subtotal'],
-                            'tgl_exprd' => $value['tgl_exprd'],
-                            'kode_user' => $user->kode,
-                        ]
-                    );
-                }
+                    [
+                        'nopenerimaan' => $value['nopenerimaan'],
+                        'noorder' => $value['noorder'],
+                        'kode_barang' => $value['kode_barang'],
+                        'nobatch' => $value['nobatch'],
+                        'id_penerimaan_rinci' => $value['id_penerimaan_rinci'],
+                        'isi' => $value['isi'],
+                        'satuan_b' => $value['satuan_b'],
+                        'satuan_k' => $value['satuan_k'],
+                        'jumlah_b' => $value['jumlah_b'],
+                        'jumlah_k' => $value['jumlah_k'],
+                        'harga' => $value['harga'],
+                        'pajak_rupiah' => $value['pajak_rupiah'],
+                        'diskon_persen' => $value['diskon_persen'],
+                        'diskon_rupiah' => $value['diskon_rupiah'],
+                        'harga_total' => $value['harga_total'],
+                        'subtotal' => $value['subtotal'],
+                        'tgl_exprd' => $value['tgl_exprd'],
+                        'kode_user' => $user->kode,
+                    ]
+                );
+            }
 
-                $existingHeader->load([
-                    'rincian' => function ($query) {
-                        $query->with(['barang']);
-                    },
-                    'suplier',
-                ]);
+            $existingHeader->load([
+                'rincian' => function ($query) {
+                    $query->with(['barang']);
+                },
+                'suplier',
+            ]);
 
-        DB::commit();
+            DB::commit();
 
             return new JsonResponse([
                 'success' => true,
