@@ -116,17 +116,12 @@ class LaporanPenjualanController extends Controller
                 'pelanggan',
                 'dokter',
             ])
-            ->whereNotNull('flag')
-            // ->orderBy($req['order_by'], $req['sort']);
+            ->whereNotNull('penjualan_h_s.flag')
+            ->when(request('q'), function ($q) {
+                $q->where('penjualan_h_s.nopenjualan', 'LIKE', '%' . request('q') . '%');
+            })
             ->orderBy("penjualan_h_s.$orderBy", $req['sort']);
         $totalCount = (clone $raw)->count();
-        $data = $raw->simplePaginate($req['per_page']);
-        // Hitung total per penjualan (dari relasi rinci)
-        // $data->getCollection()->transform(function ($item) {
-        //     $item->total_subtotal = $item->rinci->sum('subtotal');
-        //     $item->total_subtotal_retur = $item->rinci->sum('subtotal_retur');
-        //     return $item;
-        // });
 
         $grandTotals = (clone $raw)
             ->selectRaw('
@@ -142,6 +137,9 @@ class LaporanPenjualanController extends Controller
                     ->on('retur_penjualan_rs.id_stok', '=', 'penjualan_r_s.id_stok');
             })
             ->first();
+
+        $data = $raw->simplePaginate($req['per_page']);
+
 
 
         $resp = ResponseHelper::responseGetSimplePaginate($data, $req, $totalCount);
