@@ -112,9 +112,10 @@ class PenjualanController extends Controller
         $raw->when(request('q'), function ($q) {
             $q->where('nopenjualan', 'like', '%' . request('q') . '%');
         })
-            ->when($req['from'], function ($q) use ($req) {
-                $q->whereBetween('tgl_penjualan', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59']);
-            })
+            // ->when($req['from'], function ($q) use ($req) {
+            //     $q->whereBetween('tgl_penjualan', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59']);
+            // })
+            ->whereBetween('tgl_penjualan', [$req['from'] . ' 00:00:00', $req['to'] . ' 23:59:59'])
             ->with([
                 'rinci.master:nama,kode,satuan_k,satuan_b,isi,kandungan'
             ])
