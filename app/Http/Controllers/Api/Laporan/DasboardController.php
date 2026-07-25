@@ -80,12 +80,14 @@ class DasboardController extends Controller
     public function penjualanPembelianPerbulanTahunIni()
     {
         $tahunIni = Carbon::now()->year;
+        $startOfYear = "{$tahunIni}-01-01 00:00:00";
+        $endOfYear = "{$tahunIni}-12-31 23:59:59";
 
-        // Ambil data real dari database
-        $dataDB = DB::table('penjualan_r_s as r')
-            ->join('penjualan_h_s as h', 'h.nopenjualan', '=', 'r.nopenjualan')
+        // Ambil data real dari database (optimasi dengan memfilter header terlebih dahulu & range query)
+        $dataDB = DB::table('penjualan_h_s as h')
+            ->join('penjualan_r_s as r', 'r.nopenjualan', '=', 'h.nopenjualan')
             ->selectRaw('MONTH(h.tgl_penjualan) as bulan, SUM(r.subtotal) as total')
-            ->whereYear('h.tgl_penjualan', $tahunIni)
+            ->whereBetween('h.tgl_penjualan', [$startOfYear, $endOfYear])
             ->groupBy(DB::raw('MONTH(h.tgl_penjualan)'))
             ->get();
 
@@ -98,11 +100,11 @@ class DasboardController extends Controller
             $index = $row->bulan - 1; // karena index array mulai dari 0
             $bulanData[$index] = (float) $row->total;
         }
-        // Ambil total penerimaan per bulan di tahun berjalan
-        $dataDBPem = DB::table('penerimaan_rs as r')
-            ->join('penerimaan_hs as h', 'h.nopenerimaan', '=', 'r.nopenerimaan')
+        // Ambil total penerimaan per bulan di tahun berjalan (optimasi dengan range query)
+        $dataDBPem = DB::table('penerimaan_hs as h')
+            ->join('penerimaan_rs as r', 'r.nopenerimaan', '=', 'h.nopenerimaan')
             ->selectRaw('MONTH(h.tgl_penerimaan) as bulan, SUM(r.subtotal) as total')
-            ->whereYear('h.tgl_penerimaan', $tahunIni)
+            ->whereBetween('h.tgl_penerimaan', ["{$tahunIni}-01-01", "{$tahunIni}-12-31"])
             ->groupBy(DB::raw('MONTH(h.tgl_penerimaan)'))
             ->get();
         $bulanDataPem = array_fill(0, 12, 0); // isi 12 elemen dengan 0
